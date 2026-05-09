@@ -3835,12 +3835,17 @@ function generateViewerJs() {
   // Initial render
   render();
 
-  // Keep canvas flush with the toolbar bottom as it resizes (two-row layout
-  // means height varies with content and window width).
-  (function syncCanvasTop() {
+  // Keep canvas and detail panel flush with the toolbar bottom as it resizes
+  // (two-row layout means height varies with content and window width).
+  (function syncToolbarOffset() {
     const toolbar = document.getElementById('toolbar');
     const canvas = document.getElementById('canvas-container');
-    function update() { canvas.style.top = toolbar.offsetHeight + 'px'; }
+    const panel = document.getElementById('detail-panel');
+    function update() {
+      const h = toolbar.offsetHeight + 'px';
+      canvas.style.top = h;
+      panel.style.top = h;
+    }
     new ResizeObserver(update).observe(toolbar);
     update();
   })();
