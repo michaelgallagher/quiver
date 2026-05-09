@@ -122,7 +122,7 @@ function generateViewerHtml(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark light">
-  <title>${scenarioName ? escapeHtmlForAttr(scenarioName) + " — " : ""}Prototype Flow Map</title>
+  <title>${escapeHtmlForAttr(scenarioName || name || "Prototype Flow Map")}</title>
   <script>
     // Theme bootstrap — runs before stylesheets to avoid a dark/light flash
     // when the user's saved preference differs from the OS default.
@@ -144,41 +144,46 @@ function generateViewerHtml(
 <body>
   <a class="skip-link" href="#canvas-container">Skip to flow map</a>
   <div id="toolbar" role="toolbar" aria-label="Flow map controls">
-    ${backLink}
-    <h1>${scenarioName ? `<span class="scenario-name">${escapeHtmlForAttr(scenarioName)}</span>` : "Prototype Flow Map"}</h1>
-    <div class="toolbar-controls">
-      <span id="node-count" aria-live="polite" aria-atomic="true"></span>
-      <button type="button" onclick="zoomIn()" aria-label="Zoom in">Zoom +</button>
-      <button type="button" onclick="zoomOut()" aria-label="Zoom out">Zoom −</button>
-      <button type="button" onclick="fitToScreen()">Fit to screen</button>
-      <button id="toggle-thumbnail" type="button" onclick="toggleThumbnail()" aria-pressed="false" style="display:none">Show thumbnails</button>
-      <button id="toggle-screenshots" type="button" onclick="toggleScreenshots()" aria-pressed="false" style="display:none">Hide screenshots</button>
-      <button id="theme-toggle" type="button" aria-pressed="false">Light mode</button>
-      <label><input type="checkbox" id="toggle-labels" checked> Show labels</label>
-      ${hasGlobalNav ? '<label><input type="checkbox" id="toggle-global-nav"> Global nav</label>' : ""}
-      ${
-        hasProvenance
-          ? `<label class="visually-hidden" for="provenance-filter">Filter by provenance</label>
-      <select id="provenance-filter">
-        <option value="">All edges</option>
-        <option value="runtime">Runtime only</option>
-        <option value="static">Static only</option>
-        <option value="both">Both sources</option>
-      </select>`
-          : ""
-      }
-      <label class="visually-hidden" for="hub-filter">Filter by hub</label>
-      <select id="hub-filter">
-        <option value="">All hubs</option>
-      </select>
-      <label class="visually-hidden" for="search">Search pages</label>
-      <input type="text" id="search" placeholder="Search pages..." />
-      <button id="show-all-btn" type="button" onclick="showHiddenListPopover()" aria-haspopup="dialog" aria-expanded="false" style="display:none">Show hidden (0)</button>
-      <button id="node-actions-btn" type="button" onclick="openFocusedNodeMenu()" aria-haspopup="menu" aria-expanded="false" disabled title="Open actions for the focused node (Shift+F10)">Node actions</button>
-      <button id="reset-positions-btn" type="button" onclick="resetPositions()">Reset positions</button>
-      <button id="save-layout-btn" type="button" onclick="saveLayout()" style="display:none">Save layout</button>
-      <button id="outline-toggle" type="button" onclick="toggleOutlineView()" aria-pressed="false">View as outline</button>
-      <button id="keyboard-help-btn" type="button" onclick="openKeyboardHelp()" aria-haspopup="dialog" aria-expanded="false" title="Keyboard shortcuts (press ?)">Keyboard shortcuts</button>
+    <div class="toolbar-row">
+      <div class="toolbar-row__left">
+        ${backLink}
+        <h1>${(scenarioName || name) ? `<span class="scenario-name">${escapeHtmlForAttr(scenarioName || name)}</span>` : "Prototype Flow Map"}</h1>
+        <span id="node-count" aria-live="polite" aria-atomic="true"></span>
+      </div>
+    </div>
+    <div class="toolbar-row">
+      <div class="toolbar-row__left toolbar-controls">
+        <label class="visually-hidden" for="search">Search pages</label>
+        <input type="text" id="search" placeholder="Search pages..." />
+        <label class="visually-hidden" id="hub-filter-label" for="hub-filter">Filter by hub</label>
+        <select id="hub-filter" style="display:none">
+          <option value="">All hubs</option>
+        </select>
+        <button id="toggle-thumbnail" type="button" onclick="toggleThumbnail()" aria-pressed="false" style="display:none">Show thumbnails</button>
+        <button id="toggle-screenshots" type="button" onclick="toggleScreenshots()" aria-pressed="false" style="display:none">Hide screenshots</button>
+        <button id="toggle-labels" type="button" aria-pressed="true">Hide labels</button>
+        ${hasGlobalNav ? '<label><input type="checkbox" id="toggle-global-nav"> Global nav</label>' : ""}
+        ${
+          hasProvenance
+            ? `<label class="visually-hidden" for="provenance-filter">Filter by provenance</label>
+        <select id="provenance-filter">
+          <option value="">All edges</option>
+          <option value="runtime">Runtime only</option>
+          <option value="static">Static only</option>
+          <option value="both">Both sources</option>
+        </select>`
+            : ""
+        }
+        <button id="outline-toggle" type="button" onclick="toggleOutlineView()" aria-pressed="false">View as outline</button>
+        <button type="button" onclick="fitToScreen()">Fit to screen</button>
+        <button id="show-all-btn" type="button" onclick="showHiddenListPopover()" aria-haspopup="dialog" aria-expanded="false" style="display:none">Show hidden (0)</button>
+        <button id="reset-positions-btn" type="button" onclick="resetPositions()">Reset positions</button>
+        <button id="save-layout-btn" type="button" onclick="saveLayout()" style="display:none">Save layout</button>
+      </div>
+      <div class="toolbar-row__right toolbar-controls">
+        <button id="theme-toggle" type="button" aria-pressed="false">Light mode</button>
+        <button id="keyboard-help-btn" type="button" onclick="openKeyboardHelp()" aria-haspopup="dialog" aria-expanded="false" title="Keyboard shortcuts (press ?)">Keyboard shortcuts</button>
+      </div>
     </div>
   </div>
   <div id="a11y-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -364,8 +369,8 @@ function generateViewerCss() {
   --surface-1: #ffffff;
   --surface-2: #ffffff;
   --surface-3: #eef1f6;
-  --border: #d2d7e0;
-  --border-strong: #a8b0bf;
+  --border: #E2E8F1;
+  --border-strong: #C2CDDE;
   --border-popover: #c0c5d0;
   --border-popover-2: #d8dce4;
   --text: #1c2030;
@@ -501,10 +506,34 @@ body {
   z-index: 100;
   background: var(--surface-1);
   border-bottom: 1px solid var(--border);
-  padding: 8px 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toolbar-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 30px;
+}
+
+.toolbar-row__left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.toolbar-row__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
   flex-wrap: wrap;
 }
 
@@ -529,10 +558,6 @@ body {
 }
 
 .toolbar-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
   font-size: 13px;
 }
 
@@ -568,8 +593,6 @@ body {
 
 .toolbar-controls input[type="text"] { width: 160px; }
 
-#theme-toggle[aria-pressed="true"] { background: var(--border-strong); }
-
 #node-count {
   font-size: 12px;
   color: var(--text-muted);
@@ -604,7 +627,7 @@ body {
 
 #canvas-container {
   position: fixed;
-  top: 50px;
+  top: 80px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -2610,7 +2633,7 @@ function generateViewerJs() {
     document.getElementById('node-count').textContent =
       Object.keys(layoutNodes).length + ' pages, ' + layoutEdges.length + ' connections';
 
-    // Populate hub filter
+    // Populate hub filter — show only when there are multiple hubs
     const hubs = [...new Set(graph.nodes.map(n => n.hub).filter(Boolean))];
     const hubSelect = document.getElementById('hub-filter');
     if (hubSelect.options.length <= 1) {
@@ -2621,6 +2644,9 @@ function generateViewerJs() {
         hubSelect.appendChild(opt);
       });
     }
+    const showHubFilter = hubs.length > 1;
+    hubSelect.style.display = showHubFilter ? '' : 'none';
+    document.getElementById('hub-filter-label').style.display = showHubFilter ? '' : 'none';
 
     // Toggle toolbar buttons
     const showAllBtn = document.getElementById('show-all-btn');
@@ -2819,8 +2845,11 @@ function generateViewerJs() {
   };
 
   // Controls
-  document.getElementById('toggle-labels').addEventListener('change', (e) => {
-    showLabels = e.target.checked;
+  document.getElementById('toggle-labels').addEventListener('click', () => {
+    showLabels = !showLabels;
+    const btn = document.getElementById('toggle-labels');
+    btn.setAttribute('aria-pressed', String(showLabels));
+    btn.textContent = showLabels ? 'Hide labels' : 'Show labels';
     render();
   });
 
@@ -3805,6 +3834,16 @@ function generateViewerJs() {
 
   // Initial render
   render();
+
+  // Keep canvas flush with the toolbar bottom as it resizes (two-row layout
+  // means height varies with content and window width).
+  (function syncCanvasTop() {
+    const toolbar = document.getElementById('toolbar');
+    const canvas = document.getElementById('canvas-container');
+    function update() { canvas.style.top = toolbar.offsetHeight + 'px'; }
+    new ResizeObserver(update).observe(toolbar);
+    update();
+  })();
 
   // Detect serve mode and load shared positions + hidden state from the API.
   // Health check uses a short timeout so file:// loads (no server) fall through
