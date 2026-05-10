@@ -18,7 +18,7 @@ async function buildViewer(
   viewport,
   options = {},
 ) {
-  const { name, rootOutputDir } = options;
+  const { name, title, rootOutputDir } = options;
   fs.mkdirSync(outputDir, { recursive: true });
 
   // Read saved positions and hidden nodes if they exist (regeneration merge).
@@ -99,6 +99,7 @@ async function buildViewer(
       hasScreenshots,
       viewport,
       name,
+      title,
       assetPrefix,
       savedPositions,
       savedHidden,
@@ -147,6 +148,7 @@ function renderMapShell({
   hasScreenshots,
   viewport,
   name,
+  title,
   assetPrefix = "",
   savedPositions = {},
   savedHidden = {},
@@ -158,9 +160,10 @@ function renderMapShell({
     ? '<a href="../../index.html" class="back-to-index">&larr; All maps</a>'
     : "";
 
-  // Detect scenario metadata from graph nodes
-  const scenarioName =
-    graph.nodes.length > 0 ? graph.nodes[0].scenario || "" : "";
+  // Title resolution: caller-supplied title wins, falling back to the
+  // folder slug. The browser tab and the visible H1 share this single
+  // value so they stay in sync.
+  const displayTitle = title || name || "";
 
   // The shell HTML is now feature-stable: every gate-able element is always
   // emitted (with display:none where applicable), and viewer.js shows them
@@ -173,7 +176,7 @@ function renderMapShell({
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark light">
-  <title>${escapeHtmlForAttr(scenarioName || name || "Prototype Flow Map")}</title>
+  <title>${escapeHtmlForAttr(displayTitle || "Prototype Flow Map")}</title>
   <script src="${assetPrefix}theme-bootstrap.js"></script>
   <link rel="stylesheet" href="${assetPrefix}styles.css">
 </head>
@@ -183,7 +186,7 @@ function renderMapShell({
     <div class="toolbar-row">
       <div class="toolbar-row__left">
         ${backLink}
-        <h1>${(scenarioName || name) ? `<span class="scenario-name">${escapeHtmlForAttr(scenarioName || name)}</span>` : "Prototype Flow Map"}</h1>
+        <h1>${displayTitle ? `<span class="scenario-name">${escapeHtmlForAttr(displayTitle)}</span>` : "Prototype Flow Map"}</h1>
         <span id="node-count" aria-live="polite" aria-atomic="true"></span>
       </div>
     </div>

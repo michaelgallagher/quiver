@@ -224,6 +224,7 @@ async function generate(options) {
   console.log("6️⃣  Building interactive viewer...");
   await buildViewer(graph, mapOutputDir, screenshots, viewport, {
     name,
+    title: title || path.basename(prototypePath),
     rootOutputDir: name ? outputDir : null,
   });
   console.log("   Viewer built");
@@ -444,6 +445,7 @@ async function generateNative(options) {
   console.log("5️⃣  Building interactive viewer...");
   await buildViewer(graph, mapOutputDir, screenshots, null, {
     name,
+    title: title || path.basename(prototypePath),
     rootOutputDir: name ? outputDir : null,
   });
   console.log("   Viewer built");
@@ -607,9 +609,14 @@ async function generateScenario(options) {
     );
 
     // Build viewer for each scenario
+    const scenarioTitle =
+      results.length > 1
+        ? `${title || name || "Scenario"}: ${result.name}`
+        : title || result.name;
     console.log(`   Building viewer...`);
     await buildViewer(result.graph, mapOutputDir, true, viewport, {
       name: scenarioMapName,
+      title: scenarioTitle,
       rootOutputDir: outputDir,
     });
     console.log(`   Viewer built`);
@@ -631,10 +638,6 @@ async function generateScenario(options) {
     }
 
     // Always write metadata and graph data (used by combined map builder)
-    const scenarioTitle =
-      results.length > 1
-        ? `${title || name || "Scenario"}: ${result.name}`
-        : title || result.name;
     const meta = {
       name: scenarioMapName,
       title: scenarioTitle,
@@ -698,6 +701,7 @@ async function generateScenario(options) {
 
     await buildViewer(combinedGraph, combinedOutputDir, true, viewport, {
       name: combinedMapName,
+      title: title || "Combined scenarios",
       rootOutputDir: outputDir,
     });
     console.log(`   Combined viewer built`);

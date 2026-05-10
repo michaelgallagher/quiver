@@ -172,8 +172,8 @@ async function applyUpgrade(plan, outputDir) {
 
   const buildOpts =
     plan.kind === "named"
-      ? { name: plan.name, rootOutputDir: outputDir }
-      : {};
+      ? { name: plan.name, title: meta.title, rootOutputDir: outputDir }
+      : { title: meta.title };
 
   await buildViewer(
     graph,
