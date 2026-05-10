@@ -769,7 +769,12 @@ body {
 .node-rect--error     { fill: var(--node-error-fill); stroke: var(--node-error-stroke); }
 .node-rect--splash    { fill: var(--node-splash-fill); stroke: var(--node-splash-stroke); }
 .node-rect--index     { fill: var(--node-index-fill); stroke: var(--node-index-stroke); }
-.node-rect--highlight { stroke: var(--highlight) !important; stroke-width: 3 !important; }
+/* Selected node (panel open). The class lands on the parent <g>, so we
+ * scope the stroke change to the inner .node-rect — applying stroke
+ * directly on the <g> would inherit through SVG to every <text> child
+ * and render labels with outlined characters. */
+.node-rect--highlight .node-rect { stroke: var(--highlight) !important; stroke-width: 3 !important; }
+.node-rect--highlight .node-label { fill: var(--highlight); }
 /* iOS / native platform node types */
 .node-rect--screen    { fill: var(--node-screen-fill); stroke: var(--node-screen-stroke); }
 .node-rect--web-view  { fill: var(--node-web-view-fill); stroke: var(--node-web-view-stroke); }
@@ -1393,7 +1398,8 @@ body {
   .hide-node-btn:focus-visible {
     outline: 3px solid Highlight; outline-offset: 2px;
   }
-  .node-rect--highlight { stroke: Highlight !important; }
+  .node-rect--highlight .node-rect { stroke: Highlight !important; }
+  .node-rect--highlight .node-label { fill: Highlight; }
   .node-rect--start-node { stroke: Highlight !important; filter: none; }
   .node-group:focus-visible .node-rect,
   .node-rect--focused {
