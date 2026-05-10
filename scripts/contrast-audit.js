@@ -225,14 +225,14 @@ function buildPairings(t) {
     { type: "form", opacity: 0.85 },
     { type: "link", opacity: 0.75 },
     { type: "conditional", opacity: 0.7 },
-    { type: "redirect", opacity: 0.6 },
-    { type: "render", opacity: 0.5 },
-    { type: "nav", opacity: 0.5 },
+    { type: "redirect", opacity: 0.85 },
+    { type: "render", opacity: 0.85 },
+    { type: "nav", opacity: 0.75 },
     { type: "sheet", opacity: 0.8 },
     { type: "full-screen", opacity: 0.85 },
-    { type: "tab", opacity: 0.65 },
+    { type: "tab", opacity: 0.75 },
     { type: "web-view", opacity: 0.75 },
-    { type: "safari", opacity: 0.6 },
+    { type: "safari", opacity: 0.75 },
   ];
   for (const e of edges) {
     pairs.push({

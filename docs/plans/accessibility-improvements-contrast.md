@@ -1,8 +1,8 @@
 # Light- and dark-theme contrast audit (Phase 1 follow-up)
 
-Status: report only — no token changes yet
+Status: tokens applied — re-run shows zero genuine failures (2026-05-10)
 Owner: tbd
-Last updated: 2026-05-09
+Last updated: 2026-05-10
 
 ## Why this exists
 
@@ -146,6 +146,44 @@ The axe finding for `aria-hidden-focus` on `#detail-panel` is unrelated to colou
 6. Re-run `node scripts/contrast-audit.js check-in-test` and confirm zero genuine failures.
 
 A separate PR is fine for each step; the dark-theme set is the most impactful and least controversial — start there.
+
+## What landed (2026-05-10)
+
+Single follow-up branch instead of a PR per step. Files touched: `src/build-viewer.js` (tokens + control-bg split + edge opacities + `inert` on `#detail-panel`) and `scripts/contrast-audit.js` (opacity table updated to match the new CSS).
+
+Tokens — dark theme:
+- `--text-muted` `#888888` → `#9a9a9a`
+- `--text-subtle` `#666666` → `#8a8a8a`
+- `--text-meta-faint` `#6c7488` → `#828a9e`
+- `--border` `#0f3460` → `#496e9a`
+- `--border-strong` `#1a4a8a` → `#3e6eae`
+- `--border-popover` `#3a4258` → `#646c82`
+- `--node-content-stroke` `#2a5a8f` → `#3a6a9f`
+- `--node-error-stroke` `#8f2a2a` → `#ab4646`
+- `--node-splash-stroke` `#5a2a8f` → `#8050b5`
+- `--provenance-static-fg` `#aa55cc` → `#ba65dc`
+
+Tokens — light theme:
+- `--border` `#E2E8F1` → `#8e949d`
+- `--border-strong` `#C2CDDE` → `#8a95a6`
+- `--border-popover` `#c0c5d0` → `#9095a0`
+
+Token split: `--border` was being used as both a 1px-line colour and a fill for toolbar buttons / inputs / select / `.back-to-index:hover`. Lightening it to clear 3:1 against the canvas dropped text-on-control contrast below 4.5:1 in dark, and axe flagged five toolbar nodes. Resolved by introducing `--control-bg` (`#0f3460` dark / `#E2E8F1` light) and `--control-bg-hover` (`#1a4a8a` dark / `#C2CDDE` light) — the old `--border` values, now re-purposed for fills only. The three call sites in `src/build-viewer.js` (`.toolbar-controls button`, `.toolbar-controls input/select`, `.back-to-index:hover`) were rewired.
+
+Edge opacities (applies to both themes; CSS opacity is theme-agnostic):
+- `.edge-path--redirect` 0.6 → 0.85 (needed 0.85 in dark to clear 3.0; 0.75 was 2.79)
+- `.edge-path--render` 0.5 → 0.85 (same reason)
+- `.edge-path--nav` 0.5 → 0.75
+- `.edge-path--tab` 0.65 → 0.75
+- `.edge-path--safari` 0.6 → 0.75
+
+Detail panel: `#detail-panel` now ships with `inert` set in the HTML; `showDetail` removes it on open, `closePanel` re-adds it on close. Keeps the slide-out animation while preventing keyboard focus from landing on the close / hide-this-page buttons while the panel is `aria-hidden="true"`.
+
+Re-run results (`scripts/contrast-audit.js check-in-test`):
+- Dark: 0 axe violations, 0 genuine contrast failures (11 reported failures are decorative node fills, which the audit excludes by design)
+- Light: 0 axe violations, 0 genuine contrast failures (same 11 decorative-fill reports)
+
+Both phase-4 smoke tests (`smoke-test-phase4.js`, `smoke-test-phase4-runtime.js`) and the phase-5 smoke test still pass with the new tokens.
 
 ## What this audit does *not* cover
 

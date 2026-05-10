@@ -1,8 +1,8 @@
 # Accessibility improvements for the flow-map viewer
 
-Status: Phases 1–5 shipped (Phase 5 on 2026-05-03)
+Status: Phases 1–5 shipped (Phase 5 on 2026-05-03; contrast follow-up on 2026-05-10)
 Owner: tbd
-Last updated: 2026-05-03
+Last updated: 2026-05-10
 
 ## Goal
 
@@ -208,7 +208,7 @@ Definition of done: with the SVG hidden, a screen-reader user can still find any
 
 ## Cross-cutting items
 
-- **Contrast verification** (carried over from Phase 1): the Phase 1 light palette is a first cut. A scheduled remote agent (`trig_01CsHP1K7Jk8QTzY7zvZziWm`, fires 2026-05-06T09:00 UTC) will run axe + a per-token contrast measurement across both themes against the smallest fixture under `flow-map-output/maps/` and post the results to `docs/plans/accessibility-improvements-contrast.md` via PR. Token adjustments will be a separate PR after that report lands.
+- **Contrast verification** ✅ shipped 2026-05-10: the scheduled audit was auto-disabled before it fired, so a local Playwright + axe + per-token sweep replaced it (`scripts/contrast-audit.js`). Findings landed in `docs/plans/accessibility-improvements-contrast.md`; token tweaks (dark text/border/stroke nudges, light border darkening, edge-opacity bumps, a `--control-bg` split so lightened borders don't break text-on-toolbar contrast, and `inert` on the closed detail panel) shipped on the same day. Re-running the audit reports zero genuine failures and zero axe violations in both themes.
 - **Manual screen-reader pass** — TODO, still outstanding. Originally scoped after Phase 2; deferred again through Phases 3 and 4. Tab through a generated map with NVDA on Windows and VoiceOver on macOS and verify:
   - Toolbar controls, search, hub/provenance filters, theme toggle, panel open/close, and skip link (Phase 2)
   - Listbox semantics: roving tabindex, composed `aria-label`, spatial arrows, `]`/`[` structural traversal, Home/End, focus-driven highlight (Phase 3)
@@ -228,7 +228,7 @@ Definition of done: with the SVG hidden, a screen-reader user can still find any
 
 All five phases are now shipped. Remaining cross-cutting work:
 
-- **Contrast-token tightening**: scheduled audit (remote agent `trig_01CsHP1K7Jk8QTzY7zvZziWm`, fires 2026-05-06T09:00 UTC) will post results to `docs/plans/accessibility-improvements-contrast.md` via PR.
+- ~~**Contrast-token tightening**~~ ✅ shipped 2026-05-10. See `docs/plans/accessibility-improvements-contrast.md` "What landed" section.
 - **Manual NVDA / VoiceOver pass**: hands-on task, do not delegate to a remote agent. Tab through a generated map and verify Phases 2–5 semantics (toolbar, graph listbox, context menu, outline view).
 - **Maps-index page** (`src/build-index.js`): apply theme tokens and skip link — still dark-only.
 - **Documentation**: add an "Accessibility" section to `docs/README.md` covering keyboard shortcuts, screen reader recommendations, and known limitations.

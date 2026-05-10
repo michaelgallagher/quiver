@@ -247,7 +247,7 @@ function generateViewerHtml(
         : ""
     }
   </aside>
-  <aside id="detail-panel" class="hidden" role="complementary" aria-labelledby="panel-title" aria-hidden="true" tabindex="-1">
+  <aside id="detail-panel" class="hidden" role="complementary" aria-labelledby="panel-title" aria-hidden="true" inert tabindex="-1">
     <button id="close-panel" type="button" onclick="closePanel()" aria-label="Close details">✕</button>
     <div id="panel-content"></div>
   </aside>
@@ -289,18 +289,20 @@ function generateViewerCss() {
   --surface-1: #16213e;
   --surface-2: #1a1f2e;
   --surface-3: #161b27;
-  --border: #0f3460;
-  --border-strong: #1a4a8a;
-  --border-popover: #3a4258;
+  --border: #496e9a;
+  --border-strong: #3e6eae;
+  --border-popover: #646c82;
   --border-popover-2: #2a3245;
+  --control-bg: #0f3460;
+  --control-bg-hover: #1a4a8a;
   --text: #e0e0e0;
   --text-strong: #ffffff;
-  --text-muted: #888888;
-  --text-subtle: #666666;
+  --text-muted: #9a9a9a;
+  --text-subtle: #8a8a8a;
   --text-popover: #c4cad6;
   --text-meta-key: #aabbcc;
   --text-meta-value: #8899aa;
-  --text-meta-faint: #6c7488;
+  --text-meta-faint: #828a9e;
   --accent: #53d8fb;
   --accent-rgb: 83, 216, 251;
   --accent-soft: #8fb8e0;
@@ -331,7 +333,7 @@ function generateViewerCss() {
   --provenance-runtime-bg: #1a3a2a;
   --provenance-runtime-fg: #5aaf6a;
   --provenance-static-bg: #2a1a3a;
-  --provenance-static-fg: #aa55cc;
+  --provenance-static-fg: #ba65dc;
   --provenance-both-bg: #1a2a3a;
   --provenance-both-fg: #6b9fd4;
   --provenance-nav-bg: #1a3a4a;
@@ -339,7 +341,7 @@ function generateViewerCss() {
   --provenance-both-grad-1: #6b9fd4;
   --provenance-both-grad-2: #aa55cc;
   --node-content-fill: #1e3a5f;
-  --node-content-stroke: #2a5a8f;
+  --node-content-stroke: #3a6a9f;
   --node-question-fill: #1e3f5f;
   --node-question-stroke: #2a8f5a;
   --node-check-answers-fill: #3f3a1e;
@@ -347,9 +349,9 @@ function generateViewerCss() {
   --node-confirmation-fill: #1e3f2f;
   --node-confirmation-stroke: #2a8f4a;
   --node-error-fill: #3f1e1e;
-  --node-error-stroke: #8f2a2a;
+  --node-error-stroke: #ab4646;
   --node-splash-fill: #2e1e4f;
-  --node-splash-stroke: #5a2a8f;
+  --node-splash-stroke: #8050b5;
   --node-index-fill: #0f3460;
   --node-index-stroke: #53d8fb;
   --node-screen-fill: #1a3545;
@@ -369,9 +371,11 @@ function generateViewerCss() {
   --surface-1: #ffffff;
   --surface-2: #ffffff;
   --surface-3: #eef1f6;
-  --border: #E2E8F1;
-  --border-strong: #C2CDDE;
-  --border-popover: #c0c5d0;
+  --border: #8e949d;
+  --border-strong: #8a95a6;
+  --border-popover: #9095a0;
+  --control-bg: #E2E8F1;
+  --control-bg-hover: #C2CDDE;
   --border-popover-2: #d8dce4;
   --text: #1c2030;
   --text-strong: #0a0d18;
@@ -554,7 +558,7 @@ body {
   white-space: nowrap;
 }
 .back-to-index:hover {
-  background: var(--border);
+  background: var(--control-bg);
 }
 
 .toolbar-controls {
@@ -562,7 +566,7 @@ body {
 }
 
 .toolbar-controls button {
-  background: var(--border);
+  background: var(--control-bg);
   color: var(--text);
   border: 1px solid var(--border-strong);
   padding: 4px 10px;
@@ -571,7 +575,7 @@ body {
   font-size: 12px;
 }
 
-.toolbar-controls button:hover { background: var(--border-strong); }
+.toolbar-controls button:hover { background: var(--control-bg-hover); }
 
 .toolbar-controls label {
   display: flex;
@@ -583,7 +587,7 @@ body {
 
 .toolbar-controls select,
 .toolbar-controls input[type="text"] {
-  background: var(--border);
+  background: var(--control-bg);
   color: var(--text);
   border: 1px solid var(--border-strong);
   padding: 4px 8px;
@@ -815,15 +819,15 @@ body {
 .edge-path--form        { stroke: var(--edge-form); stroke-width: 2; opacity: 0.85; }
 .edge-path--link        { stroke: var(--edge-link); stroke-width: 1.2; opacity: 0.75; }
 .edge-path--conditional { stroke: var(--edge-conditional); stroke-width: 1; stroke-dasharray: 6,3; opacity: 0.7; }
-.edge-path--redirect    { stroke: var(--edge-redirect); stroke-width: 1; stroke-dasharray: 3,3; opacity: 0.6; }
-.edge-path--render      { stroke: var(--edge-render); stroke-width: 1; opacity: 0.5; }
-.edge-path--nav         { stroke: var(--edge-nav); stroke-width: 1; stroke-dasharray: 8,4; opacity: 0.5; }
+.edge-path--redirect    { stroke: var(--edge-redirect); stroke-width: 1; stroke-dasharray: 3,3; opacity: 0.85; }
+.edge-path--render      { stroke: var(--edge-render); stroke-width: 1; opacity: 0.85; }
+.edge-path--nav         { stroke: var(--edge-nav); stroke-width: 1; stroke-dasharray: 8,4; opacity: 0.75; }
 /* iOS / native platform edge types */
 .edge-path--sheet       { stroke: var(--edge-sheet); stroke-width: 1.5; stroke-dasharray: 5,3; opacity: 0.8; }
 .edge-path--full-screen { stroke: var(--edge-full-screen); stroke-width: 2; opacity: 0.85; }
-.edge-path--tab         { stroke: var(--edge-tab); stroke-width: 1.5; opacity: 0.65; }
+.edge-path--tab         { stroke: var(--edge-tab); stroke-width: 1.5; opacity: 0.75; }
 .edge-path--web-view    { stroke: var(--edge-web-view); stroke-width: 1.5; stroke-dasharray: 4,3; opacity: 0.75; }
-.edge-path--safari      { stroke: var(--edge-safari); stroke-width: 1; stroke-dasharray: 3,3; opacity: 0.6; }
+.edge-path--safari      { stroke: var(--edge-safari); stroke-width: 1; stroke-dasharray: 3,3; opacity: 0.75; }
 
 .edge-label {
   font-size: 9px;
@@ -2739,6 +2743,7 @@ function generateViewerJs() {
     content.innerHTML = html;
     panel.classList.remove('hidden');
     panel.setAttribute('aria-hidden', 'false');
+    panel.removeAttribute('inert');
 
     // Move focus to the panel title so screen reader users start reading
     // there. tabindex="-1" on the heading makes it programmatically
@@ -2756,6 +2761,7 @@ function generateViewerJs() {
     const panel = document.getElementById('detail-panel');
     panel.classList.add('hidden');
     panel.setAttribute('aria-hidden', 'true');
+    panel.setAttribute('inert', '');
     document.querySelectorAll('.node-rect--highlight').forEach(el => el.classList.remove('node-rect--highlight'));
     // Return focus to whatever opened the panel, if it's still in the DOM
     // and focusable. Falls back to the close button's parent (body) which
