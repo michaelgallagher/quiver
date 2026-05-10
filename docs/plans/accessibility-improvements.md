@@ -214,7 +214,7 @@ Definition of done: with the SVG hidden, a screen-reader user can still find any
   - Listbox semantics: roving tabindex, composed `aria-label`, spatial arrows, `]`/`[` structural traversal, Home/End, focus-driven highlight (Phase 3)
   - Move mode start/commit/cancel announcements, accessible context menu (Shift+F10 / ContextMenu / `#node-actions-btn`), hidden-list popover focus trap, help dialog, and the `#a11y-status` live region (Phase 4)
   Capture rough edges into a follow-up section before Phase 5 ships, since the outline view in Phase 5 changes the AT story significantly. **Do not schedule a remote agent for this — it is a hands-on task.**
-- **Index page** (`src/build-index.js`): apply the same theme tokens and skip link. Outstanding — Phase 1 only touched `build-viewer.js`, so the maps-index page is still dark-only.
+- **Index page** (`src/build-index.js`) ✅ shipped 2026-05-10: tokenised CSS (focused subset of the viewer's palette), no-flash theme bootstrap + `#theme-toggle` button using the same `localStorage['flowmap-theme']` key as the viewer, skip link to `<main id="main" tabindex="-1">`, `<ul class="maps-list" role="list">` with `<li>` items, `<time datetime>` for dates, `:focus-visible` rings, reduced-motion + forced-colours media queries. Verified with `scripts/audit-index-a11y.js` — zero axe violations in both themes plus 8 structural assertions per theme.
 - **Documentation**: a short "Accessibility" section in `docs/README.md` describing keyboard shortcuts, screen reader recommendations, and known limitations. Add at the end of Phase 5.
 - **Per-map ID stability**: roving tabindex (Phase 3) assumes node IDs are stable across renders — they are, per the regenerate-merge logic in `buildViewer`. No action; just a note.
 
@@ -230,5 +230,5 @@ All five phases are now shipped. Remaining cross-cutting work:
 
 - ~~**Contrast-token tightening**~~ ✅ shipped 2026-05-10. See `docs/plans/accessibility-improvements-contrast.md` "What landed" section.
 - **Manual NVDA / VoiceOver pass**: hands-on task, do not delegate to a remote agent. Tab through a generated map and verify Phases 2–5 semantics (toolbar, graph listbox, context menu, outline view).
-- **Maps-index page** (`src/build-index.js`): apply theme tokens and skip link — still dark-only.
+- ~~**Maps-index page**~~ ✅ shipped 2026-05-10. Theme tokens, skip link, theme toggle, list semantics, focus rings, reduced-motion + forced-colours all in place. See `scripts/audit-index-a11y.js` for the verification harness.
 - **Documentation**: add an "Accessibility" section to `docs/README.md` covering keyboard shortcuts, screen reader recommendations, and known limitations.
