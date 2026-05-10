@@ -1,8 +1,10 @@
 # Light- and dark-theme contrast audit (Phase 1 follow-up)
 
-Status: tokens applied — re-run shows zero genuine failures (2026-05-10)
-Owner: tbd
-Last updated: 2026-05-10
+> **Status: delivered 2026-05-10.** Token adjustments applied; re-run of
+> `scripts/contrast-audit.js` reports zero genuine failures (decorative
+> node fills are exempt; the boundary is delivered by stroke + label).
+> Audit script lives at `scripts/contrast-audit.js` and is re-runnable
+> against any fixture under `flow-map-output/maps/`.
 
 ## Why this exists
 

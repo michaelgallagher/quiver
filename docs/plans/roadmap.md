@@ -28,6 +28,9 @@ For full architecture see [`../how-it-works.md`](../how-it-works.md).
 | [Node hiding](archive/node-hiding.md) | Right-click context menu (hide node / hide subgraph), Show-hidden popover with per-node restore, persistence-key fix so state survives regeneration |
 | [Tree-shaped layout — Part A](archive/tree-layout.md) | Replaced the centred-blob fallback with dagre's tree-shaped X positions; iOS and web maps without explicit tabs now look tree-shaped instead of clumped |
 | [Server integration](archive/server-integration.md) | `/api/maps/:name/hidden` endpoint pair, viewer-side server detection with localStorage fallback, hidden-state carry-forward via `hidden.json`, `--serve` flag for one-shot generate-and-serve, plus `--port` UX rework |
+| [Accessibility improvements](archive/accessibility-improvements.md) | WCAG 2.2 AA pass on the viewer: tokenised CSS with light/dark themes, no-flash theme bootstrap, full keyboard support (listbox semantics with roving tabindex, `]`/`[` for graph edges, `M` for move mode), screen-reader landmarks, outline alternative view, reduced-motion + forced-colours media queries, parallel pass on the maps-index page. |
+| [Accessibility: contrast audit](archive/accessibility-improvements-contrast.md) | Phase 1 token follow-up: re-tuned light/dark token contrast and shipped the re-runnable `scripts/contrast-audit.js` (Playwright + axe-core + per-token measurement). Audit reports zero genuine failures in either theme. |
+| [Portable viewer + `upgrade` command](archive/portable-viewer-upgrade.md) | Per-map shell is now feature-stable; viewer loads `graph-data.json` + `runtime.json` sidecars over fetch with inline fallback for `file://`. Theme bootstrap + dagre extracted to shared assets. New `prototype-flow-map upgrade` subcommand re-bakes every map in an output dir against the current viewer without re-running the parser/crawler. |
 
 ## Active
 

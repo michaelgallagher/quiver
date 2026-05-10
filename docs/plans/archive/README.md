@@ -18,3 +18,6 @@ Workflow:
 | [`node-hiding.md`](node-hiding.md) | Delivered — right-click hide/subgraph-hide with persistence |
 | [`tree-layout.md`](tree-layout.md) | Part A delivered (dagre-X fallback); Part B parked in [`../future-ideas.md`](../future-ideas.md) |
 | [`server-integration.md`](server-integration.md) | Delivered — `/hidden` endpoints, viewer/server wiring, `--serve` flag, `--port` UX rework |
+| [`portable-viewer-upgrade.md`](portable-viewer-upgrade.md) | Delivered — sidecar data + inline fallback, shared theme bootstrap, bundled dagre, `upgrade` subcommand to re-bake maps |
+| [`accessibility-improvements.md`](accessibility-improvements.md) | Delivered — WCAG 2.2 AA pass on the viewer (keyboard, listbox semantics, light/dark themes, reduced motion, forced colours, outline view) |
+| [`accessibility-improvements-contrast.md`](accessibility-improvements-contrast.md) | Delivered — light/dark token re-tune; `scripts/contrast-audit.js` reports zero genuine failures |

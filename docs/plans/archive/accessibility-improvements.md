@@ -1,8 +1,10 @@
 # Accessibility improvements for the flow-map viewer
 
-Status: complete — all phases and cross-cutting items shipped (final items 2026-05-10)
-Owner: tbd
-Last updated: 2026-05-10
+> **Status: delivered 2026-05-10.** All phases and cross-cutting items
+> shipped. Current behaviour is described in
+> [`../../viewer.md#accessibility`](../../viewer.md#accessibility).
+> Light-/dark-theme contrast follow-up is archived alongside this doc at
+> [`accessibility-improvements-contrast.md`](accessibility-improvements-contrast.md).
 
 ## Goal
 
@@ -211,7 +213,7 @@ Definition of done: with the SVG hidden, a screen-reader user can still find any
 - **Contrast verification** ✅ shipped 2026-05-10: the scheduled audit was auto-disabled before it fired, so a local Playwright + axe + per-token sweep replaced it (`scripts/contrast-audit.js`). Findings landed in `docs/plans/accessibility-improvements-contrast.md`; token tweaks (dark text/border/stroke nudges, light border darkening, edge-opacity bumps, a `--control-bg` split so lightened borders don't break text-on-toolbar contrast, and `inert` on the closed detail panel) shipped on the same day. Re-running the audit reports zero genuine failures and zero axe violations in both themes.
 - **Manual screen-reader pass** ✅ verified 2026-05-10: hands-on pass through a generated map confirmed the Phase 2–5 semantics (toolbar, listbox, move mode, context menu, hidden-list popover, help dialog, outline view, live regions) all behave well enough on the screen readers tested. No follow-up issues raised.
 - **Index page** (`src/build-index.js`) ✅ shipped 2026-05-10: tokenised CSS (focused subset of the viewer's palette), no-flash theme bootstrap + `#theme-toggle` button using the same `localStorage['flowmap-theme']` key as the viewer, skip link to `<main id="main" tabindex="-1">`, `<ul class="maps-list" role="list">` with `<li>` items, `<time datetime>` for dates, `:focus-visible` rings, reduced-motion + forced-colours media queries. Verified with `scripts/audit-index-a11y.js` — zero axe violations in both themes plus 8 structural assertions per theme.
-- **Documentation** ✅ shipped 2026-05-10: an "Accessibility" section in [`docs/viewer.md`](../viewer.md#accessibility) covers the full keyboard-shortcut reference, screen-reader semantics (listbox + landmarks + outline view), theme/motion/contrast behaviour, and known limitations. `docs/README.md` links to it from the Reference table.
+- **Documentation** ✅ shipped 2026-05-10: an "Accessibility" section in [`docs/viewer.md`](../../viewer.md#accessibility) covers the full keyboard-shortcut reference, screen-reader semantics (listbox + landmarks + outline view), theme/motion/contrast behaviour, and known limitations. `docs/README.md` links to it from the Reference table.
 - **Per-map ID stability**: roving tabindex (Phase 3) assumes node IDs are stable across renders — they are, per the regenerate-merge logic in `buildViewer`. No action; just a note.
 
 ## Open questions
@@ -228,4 +230,4 @@ Shipped on 2026-05-10:
 - ~~Contrast-token tightening~~ — see `docs/plans/accessibility-improvements-contrast.md`.
 - ~~Manual NVDA / VoiceOver pass~~ — confirmed by the user; no follow-up issues raised.
 - ~~Maps-index page~~ — `scripts/audit-index-a11y.js` is the verification harness.
-- ~~Documentation~~ — Accessibility section in [`docs/viewer.md`](../viewer.md#accessibility), linked from `docs/README.md`.
+- ~~Documentation~~ — Accessibility section in [`docs/viewer.md`](../../viewer.md#accessibility), linked from `docs/README.md`.

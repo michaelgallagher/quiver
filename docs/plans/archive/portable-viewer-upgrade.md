@@ -1,10 +1,18 @@
 # Portable viewer + `upgrade` command
 
-**Status: shipped 2026-05-10.** Phases 1, 2, 3.1 and 3.2 complete.
-`prototype-flow-map upgrade` re-bakes every map in an output dir against the
-current viewer; sidecars (`graph-data.json`, `runtime.json`) are written
-alongside an inline fallback so `file://` viewing still works. Skipped:
-`src/upgrade.test.js` — no existing test fixtures in the project.
+> **Status: delivered 2026-05-10.** Phases 1, 2, 3.1 and 3.2 shipped.
+> `prototype-flow-map upgrade` re-bakes every map in an output dir against
+> the current viewer; sidecars (`graph-data.json`, `runtime.json`) are
+> written alongside an inline fallback so `file://` viewing still works.
+> See [`../../viewer.md#output-file-layout`](../../viewer.md#output-file-layout)
+> and [`../../viewer.md#upgrading-existing-maps`](../../viewer.md#upgrading-existing-maps)
+> for current reference. Implementation is in `src/build-viewer.js`,
+> `src/upgrade.js`, `src/upgrade-migrations.js`, and the `upgrade`
+> subcommand in `bin/cli.js`.
+>
+> Deferred: `src/upgrade.test.js` — the project doesn't yet have a working
+> test harness, so the planned tests for the upgrade walker were skipped.
+> Add when a test fixture pattern is established.
 
 ## Problem
 
