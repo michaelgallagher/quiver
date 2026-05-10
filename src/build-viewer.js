@@ -1,6 +1,11 @@
 const fs = require("fs");
 const path = require("path");
 
+// Stamped onto meta.json so the upgrade command can decide whether a map
+// needs migration or just a straight rebake. Bump on breaking shape changes
+// to graph-data.json or runtime.json — not on UI changes.
+const VIEWER_SCHEMA_VERSION = 1;
+
 /**
  * Build a self-contained HTML viewer for the flow map.
  * Outputs a single index.html with embedded JS that renders
@@ -59,9 +64,31 @@ async function buildViewer(
   const sharedAssetsDir = rootOutputDir || outputDir;
   const assetPrefix = rootOutputDir ? "../../" : "";
 
-  // Write graph data as JSON
+  // Write graph data as JSON. The viewer prefers this sidecar over the
+  // inline copy in index.html — that way an upgrade can ship new viewer.js
+  // logic against existing graph data without touching every map's HTML.
   const dataPath = path.join(outputDir, "graph-data.json");
   fs.writeFileSync(dataPath, JSON.stringify(graph, null, 2));
+
+  // Runtime knobs that aren't part of the graph itself (viewport, saved
+  // positions/hidden, map name, generation id). Same fetch-first /
+  // inline-fallback pattern as graph-data.json. The generation id changes
+  // every build so stale localStorage positions get invalidated cleanly.
+  const generationId = Date.now().toString(36);
+  const vpWidth = (viewport && viewport.width) || 375;
+  const vpHeight = (viewport && viewport.height) || 812;
+  const runtime = {
+    hasScreenshots: Boolean(hasScreenshots),
+    viewport: { width: vpWidth, height: vpHeight },
+    generationId,
+    mapName: name || "",
+    savedPositions,
+    savedHidden,
+  };
+  fs.writeFileSync(
+    path.join(outputDir, "runtime.json"),
+    JSON.stringify(runtime, null, 2),
+  );
 
   // Write the HTML viewer
   const htmlPath = path.join(outputDir, "index.html");
@@ -75,6 +102,7 @@ async function buildViewer(
       assetPrefix,
       savedPositions,
       savedHidden,
+      generationId,
     ),
   );
 
@@ -85,6 +113,18 @@ async function buildViewer(
 
   const jsPath = path.join(sharedAssetsDir, "viewer.js");
   fs.writeFileSync(jsPath, generateViewerJs());
+
+  const bootstrapPath = path.join(sharedAssetsDir, "theme-bootstrap.js");
+  fs.writeFileSync(bootstrapPath, generateThemeBootstrapJs());
+
+  // Copy dagre.min.js into vendor/ alongside the shared assets so the viewer
+  // doesn't need a network round-trip to a CDN. We resolve from this module's
+  // node_modules so it works whether prototype-flow-map is installed globally
+  // or run from a checkout.
+  const vendorDir = path.join(sharedAssetsDir, "vendor");
+  fs.mkdirSync(vendorDir, { recursive: true });
+  const dagreSrc = require.resolve("dagre/dist/dagre.min.js");
+  fs.copyFileSync(dagreSrc, path.join(vendorDir, "dagre.min.js"));
 
   // Remove any stale per-map copies left over from older builds
   if (rootOutputDir) {
@@ -103,6 +143,7 @@ function generateViewerHtml(
   assetPrefix = "",
   savedPositions = {},
   savedHidden = {},
+  generationId = Date.now().toString(36),
 ) {
   const vpWidth = (viewport && viewport.width) || 375;
   const vpHeight = (viewport && viewport.height) || 812;
@@ -113,8 +154,11 @@ function generateViewerHtml(
   // Detect scenario metadata from graph nodes
   const scenarioName =
     graph.nodes.length > 0 ? graph.nodes[0].scenario || "" : "";
-  const hasProvenance = graph.edges.some((e) => e.provenance);
-  const hasGlobalNav = graph.edges.some((e) => e.isGlobalNav);
+
+  // The shell HTML is now feature-stable: every gate-able element is always
+  // emitted (with display:none where applicable), and viewer.js shows them
+  // at runtime based on what's in the graph. That way upgrading viewer.js
+  // doesn't need to rewrite the shell of every map for these features.
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -123,22 +167,7 @@ function generateViewerHtml(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark light">
   <title>${escapeHtmlForAttr(scenarioName || name || "Prototype Flow Map")}</title>
-  <script>
-    // Theme bootstrap — runs before stylesheets to avoid a dark/light flash
-    // when the user's saved preference differs from the OS default.
-    (function() {
-      try {
-        var saved = localStorage.getItem('flowmap-theme');
-        if (saved === 'light' || saved === 'dark') {
-          document.documentElement.setAttribute('data-theme', saved);
-          return;
-        }
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-          document.documentElement.setAttribute('data-theme', 'light');
-        }
-      } catch (e) { /* localStorage blocked — default dark */ }
-    })();
-  </script>
+  <script src="${assetPrefix}theme-bootstrap.js"></script>
   <link rel="stylesheet" href="${assetPrefix}styles.css">
 </head>
 <body>
@@ -162,18 +191,14 @@ function generateViewerHtml(
         <button id="toggle-thumbnail" type="button" onclick="toggleThumbnail()" aria-pressed="false" style="display:none">Show thumbnails</button>
         <button id="toggle-screenshots" type="button" onclick="toggleScreenshots()" aria-pressed="false" style="display:none">Hide screenshots</button>
         <button id="toggle-labels" type="button" aria-pressed="true">Hide labels</button>
-        ${hasGlobalNav ? '<label><input type="checkbox" id="toggle-global-nav"> Global nav</label>' : ""}
-        ${
-          hasProvenance
-            ? `<label class="visually-hidden" for="provenance-filter">Filter by provenance</label>
-        <select id="provenance-filter">
+        <label id="toggle-global-nav-label" style="display:none"><input type="checkbox" id="toggle-global-nav"> Global nav</label>
+        <label class="visually-hidden" for="provenance-filter" id="provenance-filter-label">Filter by provenance</label>
+        <select id="provenance-filter" style="display:none">
           <option value="">All edges</option>
           <option value="runtime">Runtime only</option>
           <option value="static">Static only</option>
           <option value="both">Both sources</option>
-        </select>`
-            : ""
-        }
+        </select>
         <button id="outline-toggle" type="button" onclick="toggleOutlineView()" aria-pressed="false">View as outline</button>
         <button type="button" onclick="fitToScreen()">Fit to screen</button>
         <button id="show-all-btn" type="button" onclick="showHiddenListPopover()" aria-haspopup="dialog" aria-expanded="false" style="display:none">Show hidden (0)</button>
@@ -236,32 +261,33 @@ function generateViewerHtml(
       <li class="legend-item"><span class="legend-swatch legend-swatch--web-view" aria-hidden="true"></span> Web view</li>
       <li class="legend-item"><span class="legend-swatch legend-swatch--safari" aria-hidden="true"></span> Safari / external</li>
     </ul>
-    ${
-      hasProvenance
-        ? `<h3 class="legend-subhead">Provenance</h3>
-    <ul class="legend-list" role="list">
-      <li class="legend-item"><span class="legend-swatch legend-swatch--solid" aria-hidden="true"></span> Runtime</li>
-      <li class="legend-item"><span class="legend-swatch legend-swatch--dashed" aria-hidden="true"></span> Static only</li>
-      <li class="legend-item"><span class="legend-swatch legend-swatch--both" aria-hidden="true"></span> Both sources</li>
-    </ul>`
-        : ""
-    }
+    <div id="legend-provenance" style="display:none">
+      <h3 class="legend-subhead">Provenance</h3>
+      <ul class="legend-list" role="list">
+        <li class="legend-item"><span class="legend-swatch legend-swatch--solid" aria-hidden="true"></span> Runtime</li>
+        <li class="legend-item"><span class="legend-swatch legend-swatch--dashed" aria-hidden="true"></span> Static only</li>
+        <li class="legend-item"><span class="legend-swatch legend-swatch--both" aria-hidden="true"></span> Both sources</li>
+      </ul>
+    </div>
   </aside>
   <aside id="detail-panel" class="hidden" role="complementary" aria-labelledby="panel-title" aria-hidden="true" inert tabindex="-1">
     <button id="close-panel" type="button" onclick="closePanel()" aria-label="Close details">✕</button>
     <div id="panel-content"></div>
   </aside>
   <script>
+    // Inline data island. The viewer prefers fetched sidecars
+    // (graph-data.json, runtime.json) when those load successfully, and
+    // falls back to these globals on file:// (where fetch is CORS-blocked).
     window.__GRAPH_DATA__ = ${JSON.stringify(graph)};
     window.__HAS_SCREENSHOTS__ = ${hasScreenshots ? "true" : "false"};
     window.__VIEWPORT_WIDTH__ = ${vpWidth};
     window.__VIEWPORT_HEIGHT__ = ${vpHeight};
-    window.__GENERATION_ID__ = ${JSON.stringify(Date.now().toString(36))};
+    window.__GENERATION_ID__ = ${JSON.stringify(generationId)};
     window.__SAVED_POSITIONS__ = ${JSON.stringify(savedPositions)};
     window.__SAVED_HIDDEN__ = ${JSON.stringify(savedHidden)};
     window.__MAP_NAME__ = ${JSON.stringify(name || "")};
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+  <script src="${assetPrefix}vendor/dagre.min.js"></script>
   <script src="${assetPrefix}viewer.js"></script>
 </body>
 </html>`;
@@ -273,6 +299,22 @@ function escapeHtmlForAttr(str) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+// No-flash theme bootstrap. Loaded synchronously from <head> so data-theme
+// is set before stylesheets paint. Shared between the per-map viewer and the
+// gallery index page (build-index.js). If the user has a saved preference
+// it wins; otherwise we honour the OS-level prefers-color-scheme.
+function generateThemeBootstrapJs() {
+  return `(function () {
+  try {
+    var saved = localStorage.getItem('flowmap-theme');
+    var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    var theme = saved === 'light' || saved === 'dark' ? saved : (prefersLight ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (e) { /* localStorage may be unavailable — default dark */ }
+})();
+`;
 }
 
 function generateViewerCss() {
@@ -1423,7 +1465,38 @@ body {
 
 function generateViewerJs() {
   return `
-(function() {
+(async function() {
+  // Sidecar-first data load. When the page is served over http(s),
+  // fetch() resolves and we override the inline data island with the
+  // sidecars — that lets a viewer.js upgrade pick up data the inline
+  // copy doesn't yet know about. On file:// most browsers reject the
+  // fetch (CORS-on-local-files), in which case the inline window.__*
+  // values from index.html stand. Either way the rest of init runs
+  // synchronously below.
+  try {
+    const [graphResp, runtimeResp] = await Promise.all([
+      fetch('./graph-data.json'),
+      fetch('./runtime.json'),
+    ]);
+    if (graphResp && graphResp.ok) {
+      window.__GRAPH_DATA__ = await graphResp.json();
+    }
+    if (runtimeResp && runtimeResp.ok) {
+      const r = await runtimeResp.json();
+      if (typeof r.hasScreenshots === 'boolean') window.__HAS_SCREENSHOTS__ = r.hasScreenshots;
+      if (r.viewport) {
+        if (typeof r.viewport.width === 'number') window.__VIEWPORT_WIDTH__ = r.viewport.width;
+        if (typeof r.viewport.height === 'number') window.__VIEWPORT_HEIGHT__ = r.viewport.height;
+      }
+      if (typeof r.generationId === 'string') window.__GENERATION_ID__ = r.generationId;
+      if (typeof r.mapName === 'string') window.__MAP_NAME__ = r.mapName;
+      if (r.savedPositions && typeof r.savedPositions === 'object') window.__SAVED_POSITIONS__ = r.savedPositions;
+      if (r.savedHidden && typeof r.savedHidden === 'object') window.__SAVED_HIDDEN__ = r.savedHidden;
+    }
+  } catch (e) {
+    // file:// path or sidecars unavailable — inline values already populated.
+  }
+
   const graph = window.__GRAPH_DATA__;
   const hasScreenshots = window.__HAS_SCREENSHOTS__;
   const svg = document.getElementById('flow-svg');
@@ -3844,6 +3917,22 @@ function generateViewerJs() {
     ssBtn.setAttribute('aria-pressed', String(hideScreenshots));
   }
 
+  // Show feature-gated controls based on what the graph actually contains.
+  // Markup is always emitted by the shell (display:none); we reveal it here
+  // so the shell stays identical across map versions.
+  const hasGlobalNavEdges = graph.edges.some(e => e.isGlobalNav);
+  if (hasGlobalNavEdges) {
+    const lbl = document.getElementById('toggle-global-nav-label');
+    if (lbl) lbl.style.display = '';
+  }
+  const hasProvenanceEdges = graph.edges.some(e => e.provenance);
+  if (hasProvenanceEdges) {
+    const select = document.getElementById('provenance-filter');
+    if (select) select.style.display = '';
+    const legendProv = document.getElementById('legend-provenance');
+    if (legendProv) legendProv.style.display = '';
+  }
+
   // Initial render
   render();
 
@@ -3927,4 +4016,8 @@ function generateViewerJs() {
 `;
 }
 
-module.exports = { buildViewer };
+module.exports = {
+  buildViewer,
+  VIEWER_SCHEMA_VERSION,
+  generateThemeBootstrapJs,
+};

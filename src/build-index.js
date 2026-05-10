@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { generateThemeBootstrapJs } = require("./build-viewer");
 
 /**
  * Scan all maps in the output directory and generate a root index page
@@ -29,9 +30,13 @@ function buildIndex(outputDir) {
   // Sort by updatedAt descending (most recently updated first)
   maps.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
-  // Write the index HTML
-  const htmlPath = path.join(outputDir, "index.html");
+  // Write the index HTML and the shared theme bootstrap
   fs.mkdirSync(outputDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(outputDir, "theme-bootstrap.js"),
+    generateThemeBootstrapJs(),
+  );
+  const htmlPath = path.join(outputDir, "index.html");
   fs.writeFileSync(htmlPath, generateIndexHtml(maps));
 }
 
@@ -86,18 +91,7 @@ function generateIndexHtml(maps) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark light">
   <title>Prototype Flow Maps</title>
-  <script>
-    // No-flash theme bootstrap. Mirrors the viewer so a single
-    // localStorage key controls both pages.
-    (function () {
-      try {
-        var saved = localStorage.getItem('flowmap-theme');
-        var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-        var theme = saved || (prefersLight ? 'light' : 'dark');
-        document.documentElement.setAttribute('data-theme', theme);
-      } catch (e) { /* localStorage may be unavailable */ }
-    })();
-  </script>
+  <script src="theme-bootstrap.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 

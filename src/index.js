@@ -10,7 +10,7 @@ const {
   filterByReachability,
   normalizeUrlPath,
 } = require("./graph-builder");
-const { buildViewer } = require("./build-viewer");
+const { buildViewer, VIEWER_SCHEMA_VERSION } = require("./build-viewer");
 const { buildMermaid } = require("./build-mermaid");
 const { exportPdf } = require("./export-pdf");
 const { buildIndex } = require("./build-index");
@@ -249,6 +249,7 @@ async function generate(options) {
       name,
       title: title || path.basename(prototypePath),
       updatedAt: new Date().toISOString(),
+      viewerSchemaVersion: VIEWER_SCHEMA_VERSION,
       from: from || null,
       nodeCount: graph.nodes.length,
       edgeCount: graph.edges.length,
@@ -457,6 +458,7 @@ async function generateNative(options) {
       name,
       title: title || path.basename(prototypePath),
       updatedAt: new Date().toISOString(),
+      viewerSchemaVersion: VIEWER_SCHEMA_VERSION,
       platform,
       nodeCount: graph.nodes.length,
       edgeCount: graph.edges.length,
@@ -637,6 +639,7 @@ async function generateScenario(options) {
       name: scenarioMapName,
       title: scenarioTitle,
       updatedAt: new Date().toISOString(),
+      viewerSchemaVersion: VIEWER_SCHEMA_VERSION,
       mode: "scenario",
       scenario: result.name,
       nodeCount: result.graph.nodes.length,
@@ -705,6 +708,7 @@ async function generateScenario(options) {
       name: combinedMapName,
       title: title || "Combined scenarios",
       updatedAt: new Date().toISOString(),
+      viewerSchemaVersion: VIEWER_SCHEMA_VERSION,
       mode: "scenario",
       scenario: results.map((r) => r.name).join(" + "),
       nodeCount: combinedGraph.nodes.length,
