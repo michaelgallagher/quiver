@@ -84,6 +84,51 @@ When a native run uses `--web-jumpoffs`, web pages are rendered with distinct vi
 
 See [`web-jumpoffs.md`](web-jumpoffs.md) for the full reference on what gets crawled and how.
 
+## Output file layout
+
+Each `output-dir` is a self-contained website. Shared assets sit at the root; per-map files live under `maps/<name>/`.
+
+```
+flow-map-output/
+├── index.html            ← gallery (links to every map)
+├── styles.css            ← shared viewer stylesheet
+├── viewer.js             ← shared viewer logic
+├── theme-bootstrap.js    ← no-flash dark/light bootstrap (used by both gallery and viewer)
+├── vendor/dagre.min.js   ← layout library, bundled (no CDN)
+└── maps/
+    └── <name>/
+        ├── index.html        ← thin shell — references the shared assets above
+        ├── graph-data.json   ← nodes + edges (the map's data)
+        ├── runtime.json      ← viewport, generation id, saved positions/hidden
+        ├── meta.json         ← name, title, mode, scenario, counts, viewerSchemaVersion
+        ├── positions.json    ← (optional) manual layout overrides written by serve
+        ├── hidden.json       ← (optional) curated hide set written by serve
+        ├── sitemap.mmd       ← Mermaid sitemap source
+        └── screenshots/      ← per-screen PNGs
+```
+
+The shell HTML loads `graph-data.json` and `runtime.json` over fetch when served via http(s); on `file://` the fetch is CORS-blocked, so the shell's inline `window.__*` data island stands in. Either way the viewer ends up with the same data — the sidecars are the source of truth when reachable.
+
+## Upgrading existing maps
+
+When the viewer's CSS, JS, or HTML shell improves, older maps don't pick up the changes automatically — their HTML was baked at generation time. Run `upgrade` to re-bake every map under an output dir against the current viewer code, without re-running the parser or crawler:
+
+```bash
+prototype-flow-map upgrade ./flow-map-output           # all maps in the dir (default)
+prototype-flow-map upgrade ./flow-map-output --check   # dry-run; print the plan, write nothing
+prototype-flow-map upgrade ./flow-map-output --only my-map
+prototype-flow-map upgrade ./flow-map-output --no-include-root   # skip the gallery rebuild
+```
+
+The command:
+
+- reads each map's `graph-data.json` + `meta.json` + saved `positions.json` / `hidden.json`,
+- applies any pending schema migrations,
+- calls the same `buildViewer` code path that `generate` uses, so the shell ends up byte-identical to a fresh generate,
+- re-stamps `meta.json` with the current `viewerSchemaVersion` and `updatedAt`.
+
+`positions.json`, `hidden.json`, and `screenshots/` are never touched. Maps without `graph-data.json` (typically very old outputs) are skipped with a warning. If a map declares a schema version newer than the installed CLI, the command refuses rather than risk a silent downgrade — update the CLI and try again.
+
 ## Accessibility
 
 The viewer targets WCAG 2.2 AA. It works without a mouse, exposes the diagram as a structured widget to screen readers, and offers an outline alternative when the SVG isn't useful.

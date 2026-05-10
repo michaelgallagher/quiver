@@ -94,7 +94,7 @@ async function buildViewer(
   const htmlPath = path.join(outputDir, "index.html");
   fs.writeFileSync(
     htmlPath,
-    generateViewerHtml(
+    renderMapShell({
       graph,
       hasScreenshots,
       viewport,
@@ -103,7 +103,7 @@ async function buildViewer(
       savedPositions,
       savedHidden,
       generationId,
-    ),
+    }),
   );
 
   // Write the CSS and JS only to the shared root directory
@@ -135,7 +135,14 @@ async function buildViewer(
   }
 }
 
-function generateViewerHtml(
+/**
+ * Render the per-map shell HTML — toolbar, legend, dialogs, and the inline
+ * data island used as a fallback on file://. Both the generate codepath
+ * (src/index.js → buildViewer) and the upgrade codepath (src/upgrade.js →
+ * buildViewer) flow through here, so any UI change picked up by upgrade
+ * will look identical to a fresh generate.
+ */
+function renderMapShell({
   graph,
   hasScreenshots,
   viewport,
@@ -144,7 +151,7 @@ function generateViewerHtml(
   savedPositions = {},
   savedHidden = {},
   generationId = Date.now().toString(36),
-) {
+}) {
   const vpWidth = (viewport && viewport.width) || 375;
   const vpHeight = (viewport && viewport.height) || 812;
   const backLink = name

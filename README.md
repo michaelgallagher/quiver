@@ -66,6 +66,14 @@ npx prototype-flow-map --record /path/to/prototype
 
 A toolbar at the top of the browser controls the recording. Click through your login/setup steps, then press "Begin mapping" to start capturing pages. When you're done, press "Finish" or close the browser. See the [recording guide](docs/recording.md) for details.
 
+### Upgrading existing maps
+
+After updating prototype-flow-map, run `upgrade` to re-bake every map in an output dir against the new viewer — no re-parse, no re-crawl, and saved layouts/hidden state are preserved. See [Upgrading existing maps](docs/viewer.md#upgrading-existing-maps).
+
+```bash
+npx prototype-flow-map upgrade ./flow-map-output
+```
+
 ## Documentation
 
 | Guide | Description |

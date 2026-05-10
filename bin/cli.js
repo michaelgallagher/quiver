@@ -67,6 +67,39 @@ program
     }
   });
 
+// ── Upgrade subcommand ──────────────────────────────────────────
+
+program
+  .command("upgrade")
+  .description(
+    "Re-bake every map under <output-dir> with the current viewer (no parser/crawler re-run)",
+  )
+  .argument("[output-dir]", "Output directory to upgrade", "./flow-map-output")
+  .option("--only <name>", "Restrict to one map by name")
+  .option("--check", "Print what would change without writing", false)
+  .option(
+    "--no-include-root",
+    "Skip rebuilding the gallery index.html at the output dir root",
+  )
+  .action(async (outputDir, options) => {
+    const { upgrade } = require("../src/upgrade");
+    try {
+      const result = await upgrade(outputDir, {
+        only: options.only,
+        check: options.check,
+        includeRoot: options.includeRoot,
+      });
+      const verb = options.check ? "would upgrade" : "upgraded";
+      console.log(
+        `\n${verb} ${result.upgraded}, skipped ${result.skipped}, failed ${result.failed}.`,
+      );
+      if (result.failed > 0) process.exit(1);
+    } catch (err) {
+      console.error(`\n❌ Error: ${err.message}\n`);
+      process.exit(1);
+    }
+  });
+
 // ── Default generate command ────────────────────────────────────
 
 program

@@ -1,5 +1,11 @@
 # Portable viewer + `upgrade` command
 
+**Status: shipped 2026-05-10.** Phases 1, 2, 3.1 and 3.2 complete.
+`prototype-flow-map upgrade` re-bakes every map in an output dir against the
+current viewer; sidecars (`graph-data.json`, `runtime.json`) are written
+alongside an inline fallback so `file://` viewing still works. Skipped:
+`src/upgrade.test.js` — no existing test fixtures in the project.
+
 ## Problem
 
 Map layout and viewer features (toolbar buttons, legend rows, dialogs,
