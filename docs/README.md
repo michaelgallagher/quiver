@@ -18,7 +18,7 @@ User-facing documentation. Start here.
 | [`cli-reference.md`](cli-reference.md) | Every CLI flag, the `serve` subcommand, output directory layout |
 | [`scenarios.md`](scenarios.md) | Writing `.flow` scenarios, fragments, and scenario sets for web prototypes |
 | [`recording.md`](recording.md) | Recording scenarios interactively via `--record` mode |
-| [`viewer.md`](viewer.md) | Using the generated HTML viewer — pan, zoom, hide, reposition, save |
+| [`viewer.md`](viewer.md) | Using the generated HTML viewer — pan, zoom, hide, reposition, save, [accessibility](viewer.md#accessibility) |
 | [`ios-support.md`](ios-support.md) | iOS / SwiftUI: detected navigation patterns, config overrides, requirements |
 | [`android-support.md`](android-support.md) | Android / Jetpack Compose: detected navigation patterns, parameterised routes, requirements |
 | [`web-jumpoffs.md`](web-jumpoffs.md) | The opt-in `--web-jumpoffs` crawler — what gets captured, allowlists, caching |

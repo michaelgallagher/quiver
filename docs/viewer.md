@@ -83,3 +83,59 @@ When a native run uses `--web-jumpoffs`, web pages are rendered with distinct vi
 - **Column placement**: each web subgraph inherits the column position of the native handoff that introduced it, so the whole web journey sits in-column under the native screen that linked to it
 
 See [`web-jumpoffs.md`](web-jumpoffs.md) for the full reference on what gets crawled and how.
+
+## Accessibility
+
+The viewer targets WCAG 2.2 AA. It works without a mouse, exposes the diagram as a structured widget to screen readers, and offers an outline alternative when the SVG isn't useful.
+
+### Keyboard shortcuts
+
+Press <kbd>?</kbd> any time to open the in-app shortcuts dialog. The complete reference:
+
+**Navigation**
+- <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> — move between the toolbar, graph, and panels
+- <kbd>Arrow</kbd> keys — on a focused node: move to the nearest spatial neighbour; otherwise: pan the canvas (<kbd>Shift</kbd>+arrow for a larger step)
+- <kbd>]</kbd> / <kbd>[</kbd> — follow an outgoing / incoming connection from the focused node
+- <kbd>Home</kbd> / <kbd>End</kbd> — first / last node by visit order
+- <kbd>Enter</kbd> or <kbd>Space</kbd> — open the focused node's detail panel
+
+**Zoom and view**
+- <kbd>+</kbd> or <kbd>=</kbd> — zoom in
+- <kbd>−</kbd> or <kbd>_</kbd> — zoom out
+- <kbd>0</kbd> — fit to screen
+
+**Editing layout**
+- <kbd>M</kbd> — enter move mode on the focused node. Arrows nudge, <kbd>Shift</kbd>+arrow steps further, <kbd>Enter</kbd> commits, <kbd>Esc</kbd> cancels.
+- <kbd>Shift</kbd>+<kbd>F10</kbd> or the <kbd>ContextMenu</kbd> key — open the node actions menu (the **Node actions** toolbar button does the same with the mouse)
+
+**Dialogs and menus**
+- <kbd>Esc</kbd> — close the open menu, popover, or panel; cancel move mode
+- <kbd>?</kbd> — open the keyboard shortcuts dialog
+
+The first focusable element on the page is a "Skip to flow map" link that jumps focus past the toolbar straight into the graph.
+
+### Screen readers
+
+The graph is exposed as an [ARIA listbox](https://www.w3.org/WAI/ARIA/apg/patterns/listbox/) with one option per node. Each option's accessible name is composed from the label, the node type, an outgoing-edge summary, and the file path — for example *"Home. Screen. 3 outgoing links, 1 sheet outgoing. app/views/home.html. Press Enter to open details."* Roving tabindex keeps Tab order shallow: one node at a time is in the tab sequence, and arrow keys move focus between siblings.
+
+Other landmarks the AT picks up:
+- Toolbar (`role="toolbar"`) with labelled buttons and toggles (`aria-pressed` on Light/Dark, View as outline, etc.)
+- Detail panel as a `complementary` aside; opens with focus on the heading, closes with focus returning to whatever opened it
+- Node actions menu as `role="menu"` with full keyboard control (arrows, Enter/Space, Esc, Home/End)
+- Hidden-list popover and keyboard-shortcuts dialog as modal `role="dialog"` regions with focus trapping and Esc-to-close
+- Live region (`aria-live="polite"`) for filter, save-layout, reset, fit-to-screen, and move-mode announcements
+
+If the SVG diagram isn't useful for your AT, the **View as outline** toggle in the toolbar swaps the diagram for a structured `<nav>` of headings, lists, and buttons. Each screen lists its outgoing edges; activating any button opens the same detail panel. The outline view also makes the page legible to search engines and structured-content tools.
+
+### Theme, motion, and contrast
+
+- **Light / dark themes** — the viewer follows your OS-level preference on first load (`prefers-color-scheme`). The **Light mode** / **Dark mode** toolbar button overrides that and persists your choice across sessions and across maps. The maps index page uses the same key, so the two surfaces stay in sync.
+- **Reduced motion** — when `prefers-reduced-motion: reduce` is set, transitions, animations, and the auto-pan into focused nodes are short-circuited to instant changes.
+- **Contrast** — both themes are checked against WCAG 2.2 AA via `scripts/contrast-audit.js`; the audit currently reports zero genuine failures (decorative node fills are exempt, with the boundary delivered by the stroke and label).
+- **Forced colours (Windows High Contrast)** — system tokens (`Canvas`, `CanvasText`, `Highlight`) are used for surfaces, borders, and focus rings so user palettes win.
+
+### Known limitations
+
+- Forced-colours support is asserted in CSS but not measured in CI — Playwright's headless emulation is unreliable for SVG fills/strokes. Worth a manual VM check if you ship to a Windows audience.
+- The Mermaid sitemap (`sitemap.mmd`) inherits Mermaid's own accessibility story — there's no separate a11y treatment for it.
+- PDF export (`src/export-pdf.js`) is not yet tagged for accessibility.
