@@ -68,7 +68,7 @@ A toolbar at the top of the browser controls the recording. Click through your l
 
 ### Upgrading existing maps
 
-After updating quiver, run `upgrade` to re-bake every map in an output dir against the new viewer — no re-parse, no re-crawl, and saved layouts/hidden state are preserved. See [Upgrading existing maps](docs/viewer.md#upgrading-existing-maps).
+After updating Quiver, run `upgrade` to re-bake every map in an output dir against the new viewer — no re-parse, no re-crawl, and saved layouts/hidden state are preserved. See [Upgrading existing maps](docs/viewer.md#upgrading-existing-maps).
 
 ```bash
 npx quiver upgrade ./quiver-output

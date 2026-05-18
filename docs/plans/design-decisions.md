@@ -165,7 +165,7 @@
 - **Require the prototype author to commit test hooks.** Documented in setup, manual to add.
 - **Auto-injection** (chosen).
 
-**Why:** prototype authors aren't necessarily test-aware, and the test hooks are tool-specific (only meaningful when running quiver). Requiring hand-written hooks would be a documentation cliff and a footgun (forget to add → confusing error). Auto-injection means the tool just works on any Android prototype. Idempotency + cleanup guarantees no permanent side effect.
+**Why:** prototype authors aren't necessarily test-aware, and the test hooks are tool-specific (only meaningful when running Quiver). Requiring hand-written hooks would be a documentation cliff and a footgun (forget to add → confusing error). Auto-injection means the tool just works on any Android prototype. Idempotency + cleanup guarantees no permanent side effect.
 
 **Where:** `src/android-test-generator.js`.
 

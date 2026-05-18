@@ -1,10 +1,10 @@
 # Roadmap
 
-> Active workstreams for quiver. Each section is self-contained — a fresh contributor (human or AI) should be able to pick one up without reading the others. Recently delivered workstreams are in [`archive/`](archive/).
+> Active workstreams for Quiver. Each section is self-contained — a fresh contributor (human or AI) should be able to pick one up without reading the others. Recently delivered workstreams are in [`archive/`](archive/).
 
 ## Shared context
 
-quiver is a CLI tool that generates interactive flow maps from prototype projects. Three platforms (iOS, Android, Web), four execution modes (`scenario`, `record`, `static`, `audit`), and an opt-in web jump-off crawler that splices hosted web journeys into native flow maps. Output is a static HTML viewer (Dagre layout, vanilla JS) plus a JSON graph and screenshots. Optionally serve the output via the built-in Express server for shared persistence of layout positions and hidden-node state.
+Quiver is a CLI tool that generates interactive flow maps from prototype projects. Three platforms (iOS, Android, Web), four execution modes (`scenario`, `record`, `static`, `audit`), and an opt-in web jump-off crawler that splices hosted web journeys into native flow maps. Output is a static HTML viewer (Dagre layout, vanilla JS) plus a JSON graph and screenshots. Optionally serve the output via the built-in Express server for shared persistence of layout positions and hidden-node state.
 
 Code orientation:
 - `bin/cli.js` — CLI entry point

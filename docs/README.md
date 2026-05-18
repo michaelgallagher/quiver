@@ -1,6 +1,6 @@
 # Documentation
 
-Reference docs and forward-looking plans for quiver.
+Reference docs and forward-looking plans for Quiver.
 
 ## What is this tool?
 
