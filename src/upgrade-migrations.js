@@ -26,7 +26,7 @@ function migrate(graph, meta, targetVersion) {
     throw new Error(
       `Map "${meta.name || "(unnamed)"}" was generated against viewer schema ` +
         `${current}, which is newer than this CLI's ${targetVersion}. ` +
-        `Upgrade prototype-flow-map (npm install -g) and try again.`,
+        `Upgrade quiver (npm install -g) and try again.`,
     );
   }
 

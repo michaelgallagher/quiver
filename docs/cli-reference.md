@@ -4,47 +4,47 @@
 
 ```bash
 # Generate a flow map
-npx prototype-flow-map /path/to/prototype [options]
+npx quiver /path/to/prototype [options]
 
 # Serve a previously-generated output directory
-npx prototype-flow-map serve [output-dir] [--port 3000]
+npx quiver serve [output-dir] [--port 3000]
 ```
 
 ## Common commands
 
 ```bash
 # Record a flow map interactively (opens a browser)
-npx prototype-flow-map --record /path/to/prototype
+npx quiver --record /path/to/prototype
 
 # Record with a custom script filename and desktop viewport
-npx prototype-flow-map --record my-journey --desktop /path/to/prototype
+npx quiver --record my-journey --desktop /path/to/prototype
 
 # Static analysis (no scenario config needed)
-npx prototype-flow-map /path/to/prototype
+npx quiver /path/to/prototype
 
 # Static analysis, with scoping refinements
-npx prototype-flow-map /path/to/prototype --from "/pages/home,/pages/messages" --exclude "/pages/messages/*"
+npx quiver /path/to/prototype --from "/pages/home,/pages/messages" --exclude "/pages/messages/*"
 
 # Run a single scenario
-npx prototype-flow-map /path/to/prototype --scenario clinic-workflow
+npx quiver /path/to/prototype --scenario clinic-workflow
 
 # Run a set of scenarios
-npx prototype-flow-map /path/to/prototype --scenario-set core-user-journeys
+npx quiver /path/to/prototype --scenario-set core-user-journeys
 
 # List available scenarios
-npx prototype-flow-map /path/to/prototype --list-scenarios
+npx quiver /path/to/prototype --list-scenarios
 
 # Desktop screenshots
-npx prototype-flow-map /path/to/prototype --scenario clinic-workflow --desktop
+npx quiver /path/to/prototype --scenario clinic-workflow --desktop
 
 # Named map with title
-npx prototype-flow-map /path/to/prototype --name screening-case-management --title "Screening app" --scenario-set clinic-full
+npx quiver /path/to/prototype --name screening-case-management --title "Screening app" --scenario-set clinic-full
 
 # Serve an output directory locally with shared layout-position persistence
-npx prototype-flow-map serve ./flow-map-output --port 3000
+npx quiver serve ./quiver-output --port 3000
 
 # Generate and serve in one go (server starts after generation completes)
-npx prototype-flow-map /path/to/prototype --scenario clinic-workflow --serve --port 3000
+npx quiver /path/to/prototype --scenario clinic-workflow --serve --port 3000
 ```
 
 ## Options
@@ -52,7 +52,7 @@ npx prototype-flow-map /path/to/prototype --scenario clinic-workflow --serve --p
 | Option | Default | Description |
 |---|---|---|
 | `--record [filename]` | — | Record a scenario interactively (opens a browser). Optional filename, default: `recorded.flow` |
-| `-o, --output` | `./flow-map-output` | Output directory |
+| `-o, --output` | `./quiver-output` | Output directory |
 | `-p, --prototype-port` | `4321` | Port to start the prototype kit server on (web prototypes only) |
 | `--width` | `375` | Screenshot viewport width (pixels) |
 | `--height` | `812` | Screenshot viewport height (pixels) |
@@ -96,12 +96,12 @@ npx prototype-flow-map /path/to/prototype --scenario clinic-workflow --serve --p
 Run a local web server over an output directory. Adds REST endpoints for collaborative features. Equivalent to `--serve` on the main generate command but works against an already-generated output dir without regenerating.
 
 ```bash
-npx prototype-flow-map serve [output-dir] [--port <number>]
+npx quiver serve [output-dir] [--port <number>]
 ```
 
 | Argument / Option | Default | Description |
 |---|---|---|
-| `output-dir` | `./flow-map-output` | The output directory to serve |
+| `output-dir` | `./quiver-output` | The output directory to serve |
 | `--port` | `3000` (or `$PORT`) | Port to listen on |
 
 Endpoints:
@@ -128,7 +128,7 @@ See [`viewer.md`](viewer.md#repositioning-nodes) for the full position-loading p
 
 ## Output
 
-The tool generates a folder (default `./flow-map-output/`) containing:
+The tool generates a folder (default `./quiver-output/`) containing:
 
 ```
 index.html           # Collection index (lists all maps)
@@ -159,15 +159,15 @@ Every run prints a per-phase timing summary at the end:
    Total:        5m 54s
 ```
 
-The total is also persisted to `~/.cache/prototype-flow-map/last-run.json` (or `$XDG_CACHE_HOME/prototype-flow-map/last-run.json`) keyed by absolute prototype path. On the next run against the same prototype, the startup banner shows the previous total so you can spot whether the new run is faster or slower:
+The total is also persisted to `~/.cache/quiver/last-run.json` (or `$XDG_CACHE_HOME/quiver/last-run.json`) keyed by absolute prototype path. On the next run against the same prototype, the startup banner shows the previous total so you can spot whether the new run is faster or slower:
 
 ```
-📐 Prototype Flow Map
+📐 Quiver
 
    Prototype: /path/to/your-prototype
    Platform:  ios
    Mode:      static
-   Output:    ./flow-map-output
+   Output:    ./quiver-output
    Map:       your-prototype
    Last run:  12m 18s (4/26/2026, 7:37:26 PM)
 ```

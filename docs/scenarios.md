@@ -2,7 +2,7 @@
 
 Scenarios define realistic user journeys through your prototype. Instead of visiting every technically reachable URL, scenario mode maps what users actually experience -- pages that are valid in context, with the right session state and seed data.
 
-> **Tip:** You can generate `.flow` files automatically using the [recorder](recording.md) instead of writing them by hand. Run `npx prototype-flow-map --record /path/to/prototype` to click through your prototype in a browser and produce a `.flow` script. You can then edit the generated file to refine it.
+> **Tip:** You can generate `.flow` files automatically using the [recorder](recording.md) instead of writing them by hand. Run `npx quiver --record /path/to/prototype` to click through your prototype in a browser and produce a `.flow` script. You can then edit the generated file to refine it.
 
 ## Directory layout
 
@@ -198,4 +198,4 @@ Shared nodes keep their position from the first scenario that contains them (pre
 
 ## YAML config (optional)
 
-A `flow-map.config.yml` file is only needed to override runtime mapping defaults (canonicalization rules, filters) or define scenarios inline in YAML. The `.flow` and `.set` files are sufficient for most prototypes.
+A `quiver.config.yml` file is only needed to override runtime mapping defaults (canonicalization rules, filters) or define scenarios inline in YAML. The `.flow` and `.set` files are sufficient for most prototypes.

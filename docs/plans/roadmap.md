@@ -1,10 +1,10 @@
 # Roadmap
 
-> Active workstreams for prototype-flow-map. Each section is self-contained — a fresh contributor (human or AI) should be able to pick one up without reading the others. Recently delivered workstreams are in [`archive/`](archive/).
+> Active workstreams for quiver. Each section is self-contained — a fresh contributor (human or AI) should be able to pick one up without reading the others. Recently delivered workstreams are in [`archive/`](archive/).
 
 ## Shared context
 
-prototype-flow-map is a CLI tool that generates interactive flow maps from prototype projects. Three platforms (iOS, Android, Web), four execution modes (`scenario`, `record`, `static`, `audit`), and an opt-in web jump-off crawler that splices hosted web journeys into native flow maps. Output is a static HTML viewer (Dagre layout, vanilla JS) plus a JSON graph and screenshots. Optionally serve the output via the built-in Express server for shared persistence of layout positions and hidden-node state.
+quiver is a CLI tool that generates interactive flow maps from prototype projects. Three platforms (iOS, Android, Web), four execution modes (`scenario`, `record`, `static`, `audit`), and an opt-in web jump-off crawler that splices hosted web journeys into native flow maps. Output is a static HTML viewer (Dagre layout, vanilla JS) plus a JSON graph and screenshots. Optionally serve the output via the built-in Express server for shared persistence of layout positions and hidden-node state.
 
 Code orientation:
 - `bin/cli.js` — CLI entry point
@@ -23,14 +23,14 @@ For full architecture see [`../how-it-works.md`](../how-it-works.md).
 | Workstream | Outcome |
 |---|---|
 | [Layout: subgraph ownership + virtual inference](archive/layout-subgraph-ownership.md) | Extracted shared `assignSubgraphLayout` helper; iOS TabView tab targets now become column starts; `inferVirtualSubgraphOwners` detects hub-shaped iOS graphs without TabView and assigns logical columns. nhsapp-ios-demo-v2 now renders 4 columns (HomeView, Prescriptions, Appointments, Profile). Android byte-identical. |
-| [iOS fast screenshot pipeline](archive/ios-screenshots-fast-path.md) | Replaced XCUITest with `simctl` launch-args injection. `xcodebuild build` (no test target) + idempotent code injection + `simctl launch -flowMapRoute <route>` + `simctl io screenshot`. ~12× faster (1m 17s vs 13m 36s) with better coverage (26 screenshots vs 17). Handles item:-bound sheets, sub-NavigationStack hosts, and root "home" route. |
+| [iOS fast screenshot pipeline](archive/ios-screenshots-fast-path.md) | Replaced XCUITest with `simctl` launch-args injection. `xcodebuild build` (no test target) + idempotent code injection + `simctl launch -quiverRoute <route>` + `simctl io screenshot`. ~12× faster (1m 17s vs 13m 36s) with better coverage (26 screenshots vs 17). Handles item:-bound sheets, sub-NavigationStack hosts, and root "home" route. |
 | [iOS screenshot coverage: required-param push views](archive/ios-required-param-screenshots.md) | Extended `synthesizeSwiftValue` + `findStoredProperties` to handle `() -> Void` → `{}`, `Binding<T>` → `.constant(...)`, and inline `//` comments on property declaration lines. Added `RowLink(label:, destination:)` parser pattern. Fixed `buildRoutePlan` and both helper generators to attempt synthesis before skipping required-param views. Unlocked `TrustedPersonDetailView` and the full `RemoveTrustedPerson*` chain (~5 new screenshots). |
 | [Node hiding](archive/node-hiding.md) | Right-click context menu (hide node / hide subgraph), Show-hidden popover with per-node restore, persistence-key fix so state survives regeneration |
 | [Tree-shaped layout — Part A](archive/tree-layout.md) | Replaced the centred-blob fallback with dagre's tree-shaped X positions; iOS and web maps without explicit tabs now look tree-shaped instead of clumped |
 | [Server integration](archive/server-integration.md) | `/api/maps/:name/hidden` endpoint pair, viewer-side server detection with localStorage fallback, hidden-state carry-forward via `hidden.json`, `--serve` flag for one-shot generate-and-serve, plus `--port` UX rework |
 | [Accessibility improvements](archive/accessibility-improvements.md) | WCAG 2.2 AA pass on the viewer: tokenised CSS with light/dark themes, no-flash theme bootstrap, full keyboard support (listbox semantics with roving tabindex, `]`/`[` for graph edges, `M` for move mode), screen-reader landmarks, outline alternative view, reduced-motion + forced-colours media queries, parallel pass on the maps-index page. |
 | [Accessibility: contrast audit](archive/accessibility-improvements-contrast.md) | Phase 1 token follow-up: re-tuned light/dark token contrast and shipped the re-runnable `scripts/contrast-audit.js` (Playwright + axe-core + per-token measurement). Audit reports zero genuine failures in either theme. |
-| [Portable viewer + `upgrade` command](archive/portable-viewer-upgrade.md) | Per-map shell is now feature-stable; viewer loads `graph-data.json` + `runtime.json` sidecars over fetch with inline fallback for `file://`. Theme bootstrap + dagre extracted to shared assets. New `prototype-flow-map upgrade` subcommand re-bakes every map in an output dir against the current viewer without re-running the parser/crawler. |
+| [Portable viewer + `upgrade` command](archive/portable-viewer-upgrade.md) | Per-map shell is now feature-stable; viewer loads `graph-data.json` + `runtime.json` sidecars over fetch with inline fallback for `file://`. Theme bootstrap + dagre extracted to shared assets. New `quiver upgrade` subcommand re-bakes every map in an output dir against the current viewer without re-running the parser/crawler. |
 
 ## Active
 

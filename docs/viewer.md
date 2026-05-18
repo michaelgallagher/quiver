@@ -1,6 +1,6 @@
 # Using the viewer
 
-The tool generates an interactive HTML viewer for each map. Open `index.html` in a browser to explore — or run `prototype-flow-map serve <output-dir>` to view it via a local server (which adds shared layout-position persistence).
+The tool generates an interactive HTML viewer for each map. Open `index.html` in a browser to explore — or run `quiver serve <output-dir>` to view it via a local server (which adds shared layout-position persistence).
 
 ## Navigation
 
@@ -34,7 +34,7 @@ The tool generates an interactive HTML viewer for each map. Open `index.html` in
 - **Save layout** (serve mode only): persist current positions to the server so anyone else viewing the same deployment sees the same layout. The button shows a dirty marker (`Save layout *`) when there are unsaved changes; turns to `Layout saved ✓` after a successful PUT.
 
 Position persistence priority (highest wins):
-1. Server API (when the viewer detects it's being served via `prototype-flow-map serve` or `--serve`)
+1. Server API (when the viewer detects it's being served via `quiver serve` or `--serve`)
 2. `localStorage` (browser-local fallback when no server is reachable)
 3. Embedded `__SAVED_POSITIONS__` (baked into HTML at generation time from `positions.json`, so previous saves carry forward across regenerations even on file://)
 4. Computed layout (Dagre or grid)
@@ -89,7 +89,7 @@ See [`web-jumpoffs.md`](web-jumpoffs.md) for the full reference on what gets cra
 Each `output-dir` is a self-contained website. Shared assets sit at the root; per-map files live under `maps/<name>/`.
 
 ```
-flow-map-output/
+quiver-output/
 ├── index.html            ← gallery (links to every map)
 ├── styles.css            ← shared viewer stylesheet
 ├── viewer.js             ← shared viewer logic
@@ -114,10 +114,10 @@ The shell HTML loads `graph-data.json` and `runtime.json` over fetch when served
 When the viewer's CSS, JS, or HTML shell improves, older maps don't pick up the changes automatically — their HTML was baked at generation time. Run `upgrade` to re-bake every map under an output dir against the current viewer code, without re-running the parser or crawler:
 
 ```bash
-prototype-flow-map upgrade ./flow-map-output           # all maps in the dir (default)
-prototype-flow-map upgrade ./flow-map-output --check   # dry-run; print the plan, write nothing
-prototype-flow-map upgrade ./flow-map-output --only my-map
-prototype-flow-map upgrade ./flow-map-output --no-include-root   # skip the gallery rebuild
+quiver upgrade ./quiver-output           # all maps in the dir (default)
+quiver upgrade ./quiver-output --check   # dry-run; print the plan, write nothing
+quiver upgrade ./quiver-output --only my-map
+quiver upgrade ./quiver-output --no-include-root   # skip the gallery rebuild
 ```
 
 The command:

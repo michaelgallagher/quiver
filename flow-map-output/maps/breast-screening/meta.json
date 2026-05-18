@@ -1,0 +1,11 @@
+{
+  "name": "breast-screening",
+  "title": "Breast screening",
+  "updatedAt": "2026-05-10T14:25:48.022Z",
+  "mode": "scenario",
+  "scenario": "clinic-workflow + check-in-workflow",
+  "nodeCount": 16,
+  "edgeCount": 68,
+  "hasScreenshots": true,
+  "viewerSchemaVersion": 1
+}

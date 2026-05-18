@@ -1,0 +1,661 @@
+{
+  "nodes": [
+    {
+      "id": "/clinics/today",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/today",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-today.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 0.7200467562828755,
+      "visitOrder": 0,
+      "layoutRank": 0,
+      "isStartNode": true
+    },
+    {
+      "id": "/clinics/wtrl7jud",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-wtrl7jud.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 1.3664523670368205,
+      "visitOrder": 1,
+      "layoutRank": 1
+    },
+    {
+      "id": "/clinics/wtrl7jud/checked-in",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud/checked-in",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-wtrl7jud-checked-in.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 0.5452951490356517,
+      "visitOrder": 2,
+      "layoutRank": 1
+    },
+    {
+      "id": "/clinics/wtrl7jud/in-progress",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud/in-progress",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-wtrl7jud-in-progress.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 0.6300409117475161,
+      "visitOrder": 3,
+      "layoutRank": 1
+    },
+    {
+      "id": "/clinics/wtrl7jud/complete",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud/complete",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-wtrl7jud-complete.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 0.8632378725891292,
+      "visitOrder": 4,
+      "layoutRank": 1
+    },
+    {
+      "id": "/clinics/wtrl7jud/all",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud/all",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-wtrl7jud-all.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 2.1420222092343657,
+      "visitOrder": 5,
+      "layoutRank": 1
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/appointment",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/appointment",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-appointment.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 0.8579777907656342,
+      "visitOrder": 6,
+      "layoutRank": 2
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-confirm-identity.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 1.092928112215079,
+      "visitOrder": 7,
+      "layoutRank": 3
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-review-medical-information.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 1.1992986557568672,
+      "visitOrder": 8,
+      "layoutRank": 3
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/previous-mammograms/form",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/previous-mammograms/form",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-previous-mammograms-form.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 1.0467562828755115,
+      "visitOrder": 9,
+      "layoutRank": 4
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-take-images.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 0.6154295733489188,
+      "visitOrder": 10,
+      "layoutRank": 5
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "filePath": null,
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-check-information.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 1.2624196376388077,
+      "visitOrder": 11,
+      "layoutRank": 5
+    },
+    {
+      "id": "/reading",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/reading",
+      "filePath": null,
+      "screenshot": "screenshots/reading.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 0.690239625949737,
+      "visitOrder": 12,
+      "layoutRank": 6
+    },
+    {
+      "id": "/reading/batch/mc1as812/events/ud02hpr9/opinion",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/reading/batch/mc1as812/events/ud02hpr9/opinion",
+      "filePath": null,
+      "screenshot": "screenshots/reading-batch-mc1as812-events-ud02hpr9-opinion.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 0.7182933956750438,
+      "visitOrder": 13,
+      "layoutRank": 7
+    },
+    {
+      "id": "/reading/batch/mc1as812/events/e339v28y/opinion",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/reading/batch/mc1as812/events/e339v28y/opinion",
+      "filePath": null,
+      "screenshot": "screenshots/reading-batch-mc1as812-events-e339v28y-opinion.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded",
+      "screenshotAspectRatio": 0.7083576855639977,
+      "visitOrder": 14,
+      "layoutRank": 8
+    }
+  ],
+  "edges": [
+    {
+      "source": "/clinics/today",
+      "target": "/clinics/wtrl7jud",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud",
+      "target": "/clinics/wtrl7jud/checked-in",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/checked-in",
+      "target": "/clinics/wtrl7jud/in-progress",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/in-progress",
+      "target": "/clinics/wtrl7jud/complete",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/complete",
+      "target": "/clinics/wtrl7jud/all",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/all",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/appointment",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/appointment",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/previous-mammograms/form",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/previous-mammograms/form",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "target": "/reading",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/reading",
+      "target": "/reading/batch/mc1as812/events/ud02hpr9/opinion",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/reading/batch/mc1as812/events/ud02hpr9/opinion",
+      "target": "/reading/batch/mc1as812/events/e339v28y/opinion",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/today",
+      "target": "/reading",
+      "type": "link",
+      "label": "Image reading",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": true
+    },
+    {
+      "source": "/clinics/today",
+      "target": "/clinics/wtrl7jud",
+      "type": "link",
+      "label": "West of London BSS\n                \n                \n                (Morning)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud",
+      "target": "/reading",
+      "type": "link",
+      "label": "Image reading",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": true
+    },
+    {
+      "source": "/clinics/wtrl7jud",
+      "target": "/clinics/wtrl7jud/checked-in",
+      "type": "link",
+      "label": "Checked in \n  (1)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud",
+      "target": "/clinics/wtrl7jud/in-progress",
+      "type": "link",
+      "label": "In progress \n  (2)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud",
+      "target": "/clinics/wtrl7jud/complete",
+      "type": "link",
+      "label": "Complete \n  (5)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud",
+      "target": "/clinics/wtrl7jud/all",
+      "type": "link",
+      "label": "All \n  (21)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/checked-in",
+      "target": "/reading",
+      "type": "link",
+      "label": "Image reading",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": true
+    },
+    {
+      "source": "/clinics/wtrl7jud/checked-in",
+      "target": "/clinics/wtrl7jud",
+      "type": "link",
+      "label": "Remaining \n  (14)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/checked-in",
+      "target": "/clinics/wtrl7jud/in-progress",
+      "type": "link",
+      "label": "In progress \n  (2)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/checked-in",
+      "target": "/clinics/wtrl7jud/complete",
+      "type": "link",
+      "label": "Complete \n  (5)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/checked-in",
+      "target": "/clinics/wtrl7jud/all",
+      "type": "link",
+      "label": "All \n  (21)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/in-progress",
+      "target": "/reading",
+      "type": "link",
+      "label": "Image reading",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": true
+    },
+    {
+      "source": "/clinics/wtrl7jud/in-progress",
+      "target": "/clinics/wtrl7jud",
+      "type": "link",
+      "label": "Remaining \n  (14)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/in-progress",
+      "target": "/clinics/wtrl7jud/checked-in",
+      "type": "link",
+      "label": "Checked in \n  (1)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/in-progress",
+      "target": "/clinics/wtrl7jud/complete",
+      "type": "link",
+      "label": "Complete \n  (5)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/in-progress",
+      "target": "/clinics/wtrl7jud/all",
+      "type": "link",
+      "label": "All \n  (21)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/complete",
+      "target": "/reading",
+      "type": "link",
+      "label": "Image reading",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": true
+    },
+    {
+      "source": "/clinics/wtrl7jud/complete",
+      "target": "/clinics/wtrl7jud",
+      "type": "link",
+      "label": "Remaining \n  (14)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/complete",
+      "target": "/clinics/wtrl7jud/checked-in",
+      "type": "link",
+      "label": "Checked in \n  (1)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/complete",
+      "target": "/clinics/wtrl7jud/in-progress",
+      "type": "link",
+      "label": "In progress \n  (2)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/complete",
+      "target": "/clinics/wtrl7jud/all",
+      "type": "link",
+      "label": "All \n  (21)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/all",
+      "target": "/reading",
+      "type": "link",
+      "label": "Image reading",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": true
+    },
+    {
+      "source": "/clinics/wtrl7jud/all",
+      "target": "/clinics/wtrl7jud",
+      "type": "link",
+      "label": "Remaining \n  (14)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/all",
+      "target": "/clinics/wtrl7jud/checked-in",
+      "type": "link",
+      "label": "Checked in \n  (1)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/all",
+      "target": "/clinics/wtrl7jud/in-progress",
+      "type": "link",
+      "label": "In progress \n  (2)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/all",
+      "target": "/clinics/wtrl7jud/complete",
+      "type": "link",
+      "label": "Complete \n  (5)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/appointment",
+      "target": "/reading",
+      "type": "link",
+      "label": "Image reading",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": true
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/appointment",
+      "target": "/clinics/wtrl7jud",
+      "type": "link",
+      "label": "Back to clinic",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "type": "form",
+      "label": "[form] Confirm identity",
+      "method": "POST",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "type": "link",
+      "label": "Confirm identity",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "type": "form",
+      "label": "[form] Complete all and continue",
+      "method": "POST",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "type": "link",
+      "label": "Confirm identity",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "type": "link",
+      "label": "Review medical information",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "type": "link",
+      "label": "Confirm identity",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "type": "link",
+      "label": "Review medical information",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "type": "link",
+      "label": "Take images",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    }
+  ]
+}

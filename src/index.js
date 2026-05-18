@@ -32,7 +32,7 @@ const {
   applyExclusions,
   getScenarios,
   resolveSteps,
-} = require("./flow-map-config");
+} = require("./quiver-config");
 const { runScenarios } = require("./scenario-runner");
 const { enrichScenarioGraph } = require("./static-enrichment");
 const { crawlWebJumpoffs } = require("./web-jumpoff-crawler");

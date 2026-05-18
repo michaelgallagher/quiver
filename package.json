@@ -1,10 +1,10 @@
 {
-  "name": "prototype-flow-map",
+  "name": "quiver",
   "version": "1.0.0",
   "description": "Generate interactive flow maps from NHS/GOV.UK prototype kit projects",
   "main": "src/index.js",
   "bin": {
-    "prototype-flow-map": "./bin/cli.js"
+    "quiver": "./bin/cli.js"
   },
   "scripts": {
     "generate": "node bin/cli.js",

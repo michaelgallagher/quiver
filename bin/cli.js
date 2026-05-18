@@ -10,7 +10,7 @@ const {
   loadConfig,
   listScenarios,
   VALID_MODES,
-} = require("../src/flow-map-config");
+} = require("../src/quiver-config");
 
 function openInBrowser(filePath) {
   const commands = { darwin: "open", win32: "start", linux: "xdg-open" };
@@ -37,7 +37,7 @@ const program = new Command();
 program.enablePositionalOptions();
 
 program
-  .name("prototype-flow-map")
+  .name("quiver")
   .description(
     "Generate an interactive flow map from an Express/Nunjucks prototype",
   );
@@ -48,7 +48,7 @@ program
   .command("serve")
   .passThroughOptions()
   .description("Start a web server for viewing and collaborating on flow maps")
-  .argument("[output-dir]", "Output directory to serve", "./flow-map-output")
+  .argument("[output-dir]", "Output directory to serve", "./quiver-output")
   .option(
     "--port <number>",
     "Port to serve on",
@@ -74,7 +74,7 @@ program
   .description(
     "Re-bake every map under <output-dir> with the current viewer (no parser/crawler re-run)",
   )
-  .argument("[output-dir]", "Output directory to upgrade", "./flow-map-output")
+  .argument("[output-dir]", "Output directory to upgrade", "./quiver-output")
   .option("--only <name>", "Restrict to one map by name")
   .option("--check", "Print what would change without writing", false)
   .option(
@@ -104,7 +104,7 @@ program
 
 program
   .argument("<prototype-path>", "Path to the prototype project root")
-  .option("-o, --output <dir>", "Output directory", "./flow-map-output")
+  .option("-o, --output <dir>", "Output directory", "./quiver-output")
   .option(
     "-p, --prototype-port <number>",
     "Port to start the prototype kit server on (web prototypes only)",
@@ -243,7 +243,7 @@ program
       const mapName = options.name || toSlug(prototypeDirName);
       const mapTitle = options.title || prototypeDirName;
 
-      console.log(`\n📐 Prototype Flow Map — Recorder\n`);
+      console.log(`\n📐 Quiver — Recorder\n`);
       console.log(`   Prototype: ${resolvedPath}`);
       console.log(`   Output:    ${path.resolve(options.output)}`);
       console.log(`   Map:       ${mapName}`);
@@ -335,7 +335,7 @@ program
 
     // Handle --list-scenarios
     if (options.listScenarios) {
-      console.log(`\n📐 Prototype Flow Map — Scenarios\n`);
+      console.log(`\n📐 Quiver — Scenarios\n`);
       console.log(`   Prototype: ${resolvedPath}\n`);
       console.log(listScenarios(config));
       console.log();
@@ -364,12 +364,12 @@ program
     // Validate scenario mode has scenarios defined
     if (mode === "scenario" && config.scenarios.length === 0) {
       console.error(
-        `\n❌ Error: scenario mode requires scenarios defined in flow-map.config.yml\n`,
+        `\n❌ Error: scenario mode requires scenarios defined in quiver.config.yml\n`,
       );
       process.exit(1);
     }
 
-    console.log(`\n📐 Prototype Flow Map\n`);
+    console.log(`\n📐 Quiver\n`);
     console.log(`   Prototype: ${resolvedPath}`);
     console.log(`   Platform:  ${platform}`);
     console.log(`   Mode:      ${mode}`);

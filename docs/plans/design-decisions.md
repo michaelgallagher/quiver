@@ -70,7 +70,7 @@
 
 **Why:** UI-driven navigation is brittle. Buttons may be off-screen (need scroll), labels may be localised (need lookup), splash screens may delay (need timing), conditional rendering may hide expected paths. The parser already produces correct route strings as node IDs — calling `navController.navigate("messages")` directly bypasses all of that and renders the screen exactly as it would be rendered after a real navigation.
 
-**Where:** `src/android-test-generator.js` generates a `FlowMapCapture.kt` test that uses `TestHooks.navController` (a `@VisibleForTesting` singleton injected at `LaunchedEffect` time) to navigate to each route. Parameterised routes are resolved per placeholder with priority: config override → declared `navArgument` `defaultValue` → extracted seed ID → type-aware fallback.
+**Where:** `src/android-test-generator.js` generates a `QuiverCapture.kt` test that uses `TestHooks.navController` (a `@VisibleForTesting` singleton injected at `LaunchedEffect` time) to navigate to each route. Parameterised routes are resolved per placeholder with priority: config override → declared `navArgument` `defaultValue` → extracted seed ID → type-aware fallback.
 
 ---
 
@@ -165,7 +165,7 @@
 - **Require the prototype author to commit test hooks.** Documented in setup, manual to add.
 - **Auto-injection** (chosen).
 
-**Why:** prototype authors aren't necessarily test-aware, and the test hooks are tool-specific (only meaningful when running prototype-flow-map). Requiring hand-written hooks would be a documentation cliff and a footgun (forget to add → confusing error). Auto-injection means the tool just works on any Android prototype. Idempotency + cleanup guarantees no permanent side effect.
+**Why:** prototype authors aren't necessarily test-aware, and the test hooks are tool-specific (only meaningful when running quiver). Requiring hand-written hooks would be a documentation cliff and a footgun (forget to add → confusing error). Auto-injection means the tool just works on any Android prototype. Idempotency + cleanup guarantees no permanent side effect.
 
 **Where:** `src/android-test-generator.js`.
 

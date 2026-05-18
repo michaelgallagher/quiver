@@ -32,14 +32,14 @@ const crypto = require("crypto");
 const DEFAULT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 /**
- * Default cache directory: `$XDG_CACHE_HOME/prototype-flow-map/web-pages/`,
+ * Default cache directory: `$XDG_CACHE_HOME/quiver/web-pages/`,
  * falling back to `~/.cache/...` when XDG_CACHE_HOME is unset (the OS-X
  * convention follows the same path even though it's not officially XDG).
  */
 function getCacheDir() {
   const xdg = process.env.XDG_CACHE_HOME;
   const base = xdg && xdg.trim() ? xdg : path.join(os.homedir(), ".cache");
-  return path.join(base, "prototype-flow-map", "web-pages");
+  return path.join(base, "quiver", "web-pages");
 }
 
 /**

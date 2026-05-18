@@ -120,7 +120,7 @@ async function buildViewer(
 
   // Copy dagre.min.js into vendor/ alongside the shared assets so the viewer
   // doesn't need a network round-trip to a CDN. We resolve from this module's
-  // node_modules so it works whether prototype-flow-map is installed globally
+  // node_modules so it works whether quiver is installed globally
   // or run from a checkout.
   const vendorDir = path.join(sharedAssetsDir, "vendor");
   fs.mkdirSync(vendorDir, { recursive: true });
@@ -176,7 +176,7 @@ function renderMapShell({
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark light">
-  <title>${escapeHtmlForAttr(displayTitle || "Prototype Flow Map")}</title>
+  <title>${escapeHtmlForAttr(displayTitle || "Quiver")}</title>
   <script src="${assetPrefix}theme-bootstrap.js"></script>
   <link rel="stylesheet" href="${assetPrefix}styles.css">
 </head>
@@ -186,7 +186,7 @@ function renderMapShell({
     <div class="toolbar-row">
       <div class="toolbar-row__left">
         ${backLink}
-        <h1>${displayTitle ? `<span class="scenario-name">${escapeHtmlForAttr(displayTitle)}</span>` : "Prototype Flow Map"}</h1>
+        <h1>${displayTitle ? `<span class="scenario-name">${escapeHtmlForAttr(displayTitle)}</span>` : "Quiver"}</h1>
         <span id="node-count" aria-live="polite" aria-atomic="true"></span>
       </div>
     </div>

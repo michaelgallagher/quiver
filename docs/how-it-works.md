@@ -29,7 +29,7 @@ Key files: `src/recorder.js`, `src/recorder-inject.js`, `src/flow-serializer.js`
 
 ## Web prototypes — scenario mode
 
-1. **Loads scenario config** from the `scenarios/` directory (`.flow` scenarios, `fragments/` for shared steps, `.set` files for groups) and optional `flow-map.config.yml`
+1. **Loads scenario config** from the `scenarios/` directory (`.flow` scenarios, `fragments/` for shared steps, `.set` files for groups) and optional `quiver.config.yml`
 2. **Runs static analysis** — scans templates and route handlers for enrichment metadata
 3. **Starts the prototype server** and launches a headless browser
 4. **For each scenario:**
@@ -63,12 +63,12 @@ Key files: `src/recorder.js`, `src/recorder-inject.js`, `src/flow-serializer.js`
 5. **Auto-injects** two files into the prototype at run time:
    - `navigation/TestHooks.kt` — a `@VisibleForTesting` singleton exposing `NavHostController?`
    - A single `LaunchedEffect(navController) { TestHooks.navController = navController }` line into whichever `.kt` file hosts the `NavHost` — both are idempotent (skipped if already present)
-6. **Generates a temporary `FlowMapCapture.kt`** instrumented test that navigates to each screen by calling `navController.navigate("<resolvedRoute>")` directly (not by tapping UI) and captures via `composeTestRule.onRoot().captureToImage()`. Parameterized routes are resolved per placeholder with priority: config override → declared `navArgument` `defaultValue` → extracted seed ID → type-aware fallback (`StringType` → `"1"`, `BoolType` → `"false"`, `Int/LongType` → `"0"`, `FloatType` → `"0.0"`)
+6. **Generates a temporary `QuiverCapture.kt`** instrumented test that navigates to each screen by calling `navController.navigate("<resolvedRoute>")` directly (not by tapping UI) and captures via `composeTestRule.onRoot().captureToImage()`. Parameterized routes are resolved per placeholder with priority: config override → declared `navArgument` `defaultValue` → extracted seed ID → type-aware fallback (`StringType` → `"1"`, `BoolType` → `"false"`, `Int/LongType` → `"0"`, `FloatType` → `"0.0"`)
 7. **Builds debug + androidTest APKs**, installs them, runs `am instrument` directly on the device (skipping `connectedDebugAndroidTest` because that task uninstalls the app before screenshots can be pulled), `adb pull`s PNGs off the device, then uninstalls
 8. **Restores all injected files and animation settings** in a `finally` block, leaving the prototype's git status unchanged
 9. **Generates a static HTML viewer** with the graph and screenshots embedded
 
-Most parameterized routes resolve automatically. Override values in `flow-map.config.yml` only when you want a specific seed record, or when the auto-resolved fallback hits a dead end:
+Most parameterized routes resolve automatically. Override values in `quiver.config.yml` only when you want a specific seed record, or when the auto-resolved fallback hits a dead end:
 
 ```yaml
 overrides:
@@ -102,7 +102,7 @@ When `webJumpoffs.hideNativeChrome` is true (the default), the BFS link extracto
 The tool can run as a local web server over an output directory:
 
 ```bash
-npx prototype-flow-map serve ./flow-map-output --port 3000
+npx quiver serve ./quiver-output --port 3000
 ```
 
 When the viewer detects it's being served (via `GET /api/health`), it switches from `localStorage`-only persistence to API-backed persistence. Layout positions saved with the "Save layout" button go to `PUT /api/maps/:name/positions` and are written to `<output>/maps/<name>/positions.json`. Viewers opened directly from disk (file://) fall back to `localStorage`.

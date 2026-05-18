@@ -1,0 +1,180 @@
+{
+  "nodes": [
+    {
+      "id": "/clinics/today",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/today",
+      "filePath": "clinics/index.html",
+      "screenshot": "screenshots/clinics-today.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded-4",
+      "screenshotAspectRatio": 0.9625,
+      "visitOrder": 0,
+      "layoutRank": 0,
+      "isStartNode": true,
+      "staticEnriched": true
+    },
+    {
+      "id": "/clinics/upcoming",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/upcoming",
+      "filePath": "clinics/index.html",
+      "screenshot": "screenshots/clinics-upcoming.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded-4",
+      "screenshotAspectRatio": 0.9625,
+      "visitOrder": 1,
+      "layoutRank": 0,
+      "staticEnriched": true
+    },
+    {
+      "id": "/clinics/completed",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/completed",
+      "filePath": "clinics/index.html",
+      "screenshot": "screenshots/clinics-completed.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded-4",
+      "screenshotAspectRatio": 4.4359375,
+      "visitOrder": 2,
+      "layoutRank": 0,
+      "staticEnriched": true
+    },
+    {
+      "id": "/clinics/all",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/all",
+      "filePath": "clinics/index.html",
+      "screenshot": "screenshots/clinics-all.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "recorded-4",
+      "screenshotAspectRatio": 5.1671875,
+      "visitOrder": 3,
+      "layoutRank": 0,
+      "staticEnriched": true
+    }
+  ],
+  "edges": [
+    {
+      "source": "/clinics/all",
+      "target": "/clinics/today",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/today",
+      "target": "/clinics/upcoming",
+      "type": "link",
+      "label": "Upcoming \n  (4)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/today",
+      "target": "/clinics/completed",
+      "type": "link",
+      "label": "Completed \n  (42)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/today",
+      "target": "/clinics/all",
+      "type": "link",
+      "label": "All \n  (50)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/upcoming",
+      "target": "/clinics/today",
+      "type": "link",
+      "label": "Today \n  (4)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/upcoming",
+      "target": "/clinics/completed",
+      "type": "link",
+      "label": "Completed \n  (42)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/upcoming",
+      "target": "/clinics/all",
+      "type": "link",
+      "label": "All \n  (50)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/completed",
+      "target": "/clinics/today",
+      "type": "link",
+      "label": "Today \n  (4)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/completed",
+      "target": "/clinics/upcoming",
+      "type": "link",
+      "label": "Upcoming \n  (4)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/completed",
+      "target": "/clinics/all",
+      "type": "link",
+      "label": "All \n  (50)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/all",
+      "target": "/clinics/today",
+      "type": "link",
+      "label": "Screening",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": true
+    },
+    {
+      "source": "/clinics/all",
+      "target": "/clinics/upcoming",
+      "type": "link",
+      "label": "Upcoming \n  (4)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/all",
+      "target": "/clinics/completed",
+      "type": "link",
+      "label": "Completed \n  (42)",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    }
+  ]
+}

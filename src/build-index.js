@@ -90,7 +90,7 @@ function generateIndexHtml(maps) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark light">
-  <title>Prototype Flow Maps</title>
+  <title>Quiver</title>
   <script src="theme-bootstrap.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -291,7 +291,7 @@ function generateIndexHtml(maps) {
   <header>
     <div class="header-row">
       <div>
-        <h1>Prototype Flow Maps</h1>
+        <h1>Quiver</h1>
         <p>${maps.length} map${maps.length !== 1 ? "s" : ""}</p>
       </div>
       <button id="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to light mode">Light mode</button>

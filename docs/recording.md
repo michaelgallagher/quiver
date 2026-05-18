@@ -5,7 +5,7 @@ The recorder lets you create flow maps by clicking through your prototype in a r
 ## Quick start
 
 ```bash
-npx prototype-flow-map --record /path/to/prototype
+npx quiver --record /path/to/prototype
 ```
 
 This opens a browser with your prototype and a coloured toolbar at the top. Click through your prototype naturally -- every interaction is captured.
@@ -67,19 +67,19 @@ The recorder prefers label-based steps over CSS selectors. Labels make scenarios
 
 ```bash
 # Custom filename for the .flow script
-npx prototype-flow-map --record my-journey /path/to/prototype
+npx quiver --record my-journey /path/to/prototype
 
 # Desktop viewport
-npx prototype-flow-map --record --desktop /path/to/prototype
+npx quiver --record --desktop /path/to/prototype
 
 # Custom prototype-kit port
-npx prototype-flow-map --record --prototype-port 5000 /path/to/prototype
+npx quiver --record --prototype-port 5000 /path/to/prototype
 
 # Named map with title
-npx prototype-flow-map --record --name screening-clinics --title "Clinic workflow" /path/to/prototype
+npx quiver --record --name screening-clinics --title "Clinic workflow" /path/to/prototype
 
 # Skip opening the viewer in a browser
-npx prototype-flow-map --record --no-open /path/to/prototype
+npx quiver --record --no-open /path/to/prototype
 ```
 
 The default script filename is `recorded.flow`. If the file already exists, a numeric suffix is added (`recorded-2.flow`, `recorded-3.flow`, etc.).
@@ -88,7 +88,7 @@ The default script filename is `recorded.flow`. If the file already exists, a nu
 
 The recorder produces two things:
 
-1. **Flow map viewer** -- an interactive HTML map at `flow-map-output/maps/<name>/index.html`, identical to what you'd get from running a scenario. This is the primary output.
+1. **Flow map viewer** -- an interactive HTML map at `quiver-output/maps/<name>/index.html`, identical to what you'd get from running a scenario. This is the primary output.
 2. **`.flow` script** -- saved to `<prototype>/scenarios/<filename>.flow`. This is a secondary output that you can edit and replay.
 
 ## Tips
@@ -104,7 +104,7 @@ The recorder produces two things:
 The `.flow` script can be replayed as a regular scenario:
 
 ```bash
-npx prototype-flow-map --scenario recorded /path/to/prototype
+npx quiver --scenario recorded /path/to/prototype
 ```
 
 The recorder automatically converts `Visit` steps with session-specific URLs (containing dynamic IDs) into `Snapshot` steps in the saved script. This makes replay more robust -- instead of navigating to a URL that may not exist in a different session, the scenario runner captures whatever page the browser is currently on.

@@ -1,10 +1,10 @@
 # Documentation
 
-Reference docs and forward-looking plans for prototype-flow-map.
+Reference docs and forward-looking plans for quiver.
 
 ## What is this tool?
 
-`prototype-flow-map` generates interactive flow maps from prototype projects. It supports three platforms (web, iOS, Android), four mapping modes (`scenario`, `record`, `static`, `audit`), and an opt-in web jump-off crawler that splices hosted web journeys into native flow maps.
+`quiver` generates interactive flow maps from prototype projects. It supports three platforms (web, iOS, Android), four mapping modes (`scenario`, `record`, `static`, `audit`), and an opt-in web jump-off crawler that splices hosted web journeys into native flow maps.
 
 Output is a static HTML viewer (Dagre layout, vanilla JS) plus a JSON graph and screenshots. Optionally serve the output via a built-in Express server for shared layout-position persistence.
 
@@ -22,7 +22,7 @@ User-facing documentation. Start here.
 | [`ios-support.md`](ios-support.md) | iOS / SwiftUI: detected navigation patterns, config overrides, requirements |
 | [`android-support.md`](android-support.md) | Android / Jetpack Compose: detected navigation patterns, parameterised routes, requirements |
 | [`web-jumpoffs.md`](web-jumpoffs.md) | The opt-in `--web-jumpoffs` crawler — what gets captured, allowlists, caching |
-| [`flow-map.config.sample.yml`](flow-map.config.sample.yml) | Reference example of the YAML config format |
+| [`quiver.config.sample.yml`](quiver.config.sample.yml) | Reference example of the YAML config format |
 | [`example-scenarios/`](example-scenarios/) | Working `.flow` scenarios + fragments + sets, used for the screening prototype |
 
 ## Plans
@@ -56,7 +56,7 @@ When working on a workstream from `plans/roadmap.md`, each section is self-conta
 | `bin/cli.js` | CLI entry point (commander), platform detection, mode dispatch |
 | `src/index.js` | Pipeline orchestration: `generate` (web), `generateNative` (iOS/Android) |
 | `src/build-viewer.js` | Generates the static HTML viewer + embeds runtime viewer JS as a string template |
-| `src/server.js` | Express server (`prototype-flow-map serve`), REST API for collaborative features |
+| `src/server.js` | Express server (`quiver serve`), REST API for collaborative features |
 | `src/flow-map-config.js` | YAML/JSON config loading, scenario/fragment/step validation |
 | `src/flow-parser.js` | `.flow` DSL parser |
 | `src/flow-serializer.js` | Inverse: recorded steps → `.flow` text |
@@ -68,7 +68,7 @@ When working on a workstream from `plans/roadmap.md`, each section is self-conta
 | `src/swift-graph-builder.js` | iOS: graph construction from parsed views |
 | `src/kotlin-parser.js` | Android: Jetpack Compose navigation pattern parser |
 | `src/kotlin-graph-builder.js` | Android: graph construction |
-| `src/android-test-generator.js` | Android: generates `FlowMapCapture.kt`, runs `am instrument` |
+| `src/android-test-generator.js` | Android: generates `QuiverCapture.kt`, runs `am instrument` |
 | `src/web-jumpoff-crawler.js` | Web jump-off Playwright BFS, chrome-stripping injection |
 | `src/web-jumpoff-cache.js` | Per-page disk cache for jump-off crawls |
 | `src/splice-web-subgraphs.js` | Splices crawled web subgraphs into native graphs |

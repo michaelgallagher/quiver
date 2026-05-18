@@ -1,0 +1,258 @@
+{
+  "nodes": [
+    {
+      "id": "/clinics/wtrl7jud",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud",
+      "filePath": "clinics/show.html",
+      "screenshot": "screenshots/clinics-wtrl7jud.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "check-in-workflow",
+      "screenshotAspectRatio": 1.8265625,
+      "visitOrder": 0,
+      "layoutRank": 0,
+      "isStartNode": true,
+      "staticEnriched": true
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/appointment",
+      "label": "Screening appointment",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/appointment",
+      "filePath": "events/appointment.html",
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-appointment.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "check-in-workflow",
+      "screenshotAspectRatio": 1.146875,
+      "visitOrder": 1,
+      "layoutRank": 1,
+      "staticEnriched": true
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "label": "Confirm identity",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "filePath": "events/confirm-identity.html",
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-confirm-identity.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "check-in-workflow",
+      "screenshotAspectRatio": 1.4609375,
+      "visitOrder": 2,
+      "layoutRank": 2,
+      "staticEnriched": true
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "label": "Review medical information",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "filePath": "events/review-medical-information.html",
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-review-medical-information.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "check-in-workflow",
+      "screenshotAspectRatio": 1.603125,
+      "visitOrder": 3,
+      "layoutRank": 2,
+      "staticEnriched": true
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/previous-mammograms/form",
+      "label": "Add details of a previous mammogram",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/previous-mammograms/form",
+      "filePath": "events/previous-mammograms/form.html",
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-previous-mammograms-form.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "check-in-workflow",
+      "screenshotAspectRatio": 1.39921875,
+      "visitOrder": 4,
+      "layoutRank": 3,
+      "staticEnriched": true
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "label": "Manage breast screening – NHS",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "filePath": "events/take-images.html",
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-take-images.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "check-in-workflow",
+      "screenshotAspectRatio": 0.82265625,
+      "visitOrder": 5,
+      "layoutRank": 4,
+      "staticEnriched": true
+    },
+    {
+      "id": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "label": "Check information",
+      "urlPath": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "filePath": "events/check-information.html",
+      "screenshot": "screenshots/clinics-wtrl7jud-events-tpuas1hy-check-information.png",
+      "type": "page",
+      "actualTitle": "Manage breast screening – NHS",
+      "scenario": "check-in-workflow",
+      "screenshotAspectRatio": 1.6875,
+      "visitOrder": 6,
+      "layoutRank": 4,
+      "staticEnriched": true
+    }
+  ],
+  "edges": [
+    {
+      "source": "/clinics/wtrl7jud",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/appointment",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/appointment",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/previous-mammograms/form",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/previous-mammograms/form",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "target": "/clinics/wtrl7jud",
+      "type": "link",
+      "label": "",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/appointment",
+      "target": "/clinics/wtrl7jud",
+      "type": "link",
+      "label": "Back to clinic",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "type": "form",
+      "label": "[form] Confirm identity",
+      "method": "POST",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "type": "link",
+      "label": "Confirm identity",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "type": "form",
+      "label": "[form] Complete all and continue",
+      "method": "POST",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "type": "link",
+      "label": "Confirm identity",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "type": "link",
+      "label": "Review medical information",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/confirm-identity",
+      "type": "link",
+      "label": "Confirm identity",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/review-medical-information",
+      "type": "link",
+      "label": "Review medical information",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    },
+    {
+      "source": "/clinics/wtrl7jud/events/tpuas1hy/check-information",
+      "target": "/clinics/wtrl7jud/events/tpuas1hy/take-images",
+      "type": "link",
+      "label": "Take images",
+      "method": "GET",
+      "provenance": "runtime",
+      "isGlobalNav": false
+    }
+  ]
+}

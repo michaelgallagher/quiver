@@ -1,0 +1,31 @@
+flowchart TD
+  clinics_wtrl7jud["Manage breast screening – NHS"]
+  clinics_wtrl7jud_events_p9pesvvz_appointment["Screening appointment"]
+  clinics_wtrl7jud_events_p9pesvvz_confirm_identity["Confirm identity"]
+  clinics_wtrl7jud_events_p9pesvvz_review_medical_information["Review medical information"]
+  clinics_wtrl7jud_events_p9pesvvz_medical_information_medical_history_breast_cancer["Add breast cancer details"]
+  clinics_wtrl7jud_events_p9pesvvz_take_images["Manage breast screening – NHS"]
+  clinics_wtrl7jud_events_p9pesvvz_check_information["Check information"]
+
+  clinics_wtrl7jud --> clinics_wtrl7jud_events_p9pesvvz_appointment
+  clinics_wtrl7jud_events_p9pesvvz_appointment --> clinics_wtrl7jud_events_p9pesvvz_confirm_identity
+  clinics_wtrl7jud_events_p9pesvvz_confirm_identity --> clinics_wtrl7jud_events_p9pesvvz_review_medical_information
+  clinics_wtrl7jud_events_p9pesvvz_review_medical_information --> clinics_wtrl7jud_events_p9pesvvz_medical_information_medical_history_breast_cancer
+  clinics_wtrl7jud_events_p9pesvvz_medical_information_medical_history_breast_cancer --> clinics_wtrl7jud_events_p9pesvvz_review_medical_information
+  clinics_wtrl7jud_events_p9pesvvz_review_medical_information --> clinics_wtrl7jud_events_p9pesvvz_take_images
+  clinics_wtrl7jud_events_p9pesvvz_take_images --> clinics_wtrl7jud_events_p9pesvvz_check_information
+  clinics_wtrl7jud_events_p9pesvvz_check_information --> clinics_wtrl7jud
+  clinics_wtrl7jud_events_p9pesvvz_appointment --> clinics_wtrl7jud
+  clinics_wtrl7jud_events_p9pesvvz_confirm_identity --> clinics_wtrl7jud_events_p9pesvvz_review_medical_information
+  clinics_wtrl7jud_events_p9pesvvz_review_medical_information --> clinics_wtrl7jud_events_p9pesvvz_confirm_identity
+  clinics_wtrl7jud_events_p9pesvvz_review_medical_information --> clinics_wtrl7jud_events_p9pesvvz_take_images
+  clinics_wtrl7jud_events_p9pesvvz_take_images --> clinics_wtrl7jud_events_p9pesvvz_confirm_identity
+  clinics_wtrl7jud_events_p9pesvvz_take_images --> clinics_wtrl7jud_events_p9pesvvz_review_medical_information
+  clinics_wtrl7jud_events_p9pesvvz_check_information --> clinics_wtrl7jud_events_p9pesvvz_confirm_identity
+  clinics_wtrl7jud_events_p9pesvvz_check_information --> clinics_wtrl7jud_events_p9pesvvz_review_medical_information
+  clinics_wtrl7jud_events_p9pesvvz_check_information --> clinics_wtrl7jud_events_p9pesvvz_take_images
+
+  classDef start fill:#53d8fb,stroke:#0f3460,color:#000
+  classDef question fill:#e94560,stroke:#0f3460,color:#fff
+  classDef confirmation fill:#4ecca3,stroke:#0f3460,color:#000
+  classDef error fill:#ff6b6b,stroke:#0f3460,color:#fff

@@ -3,7 +3,7 @@
 The tool supports native Android prototypes built with Jetpack Compose + Navigation Compose. It auto-detects Android projects (by looking for `build.gradle.kts` or `settings.gradle.kts` files with an `com.android.application` module) or you can force it with `--platform android`.
 
 ```bash
-npx prototype-flow-map /path/to/android-prototype --platform android
+npx quiver /path/to/android-prototype --platform android
 ```
 
 ## How it works
@@ -13,7 +13,7 @@ npx prototype-flow-map /path/to/android-prototype --platform android
 3. Extracts seed IDs from ViewModel source so parameterized routes can be resolved to real data
 4. Builds a directed graph of screens and navigation edges
 5. Auto-injects `TestHooks.kt` + a `LaunchedEffect` hook into the app's NavHost file (idempotent, restored afterwards)
-6. Generates a temporary `FlowMapCapture.kt` instrumented test that navigates to each screen and captures a PNG via `composeTestRule.onRoot().captureToImage()`
+6. Generates a temporary `QuiverCapture.kt` instrumented test that navigates to each screen and captures a PNG via `composeTestRule.onRoot().captureToImage()`
 7. Builds debug + androidTest APKs, installs them, runs `am instrument` directly on the device, `adb pull`s the PNGs, then uninstalls
 8. Generates a static HTML viewer with the graph and screenshots embedded
 
@@ -44,7 +44,7 @@ On each run the tool touches two files in the prototype's main source tree and o
 |---|---|---|
 | `app/src/main/java/<pkg>/navigation/TestHooks.kt` | Created if missing — a `@VisibleForTesting` singleton holding the `NavHostController` | Deleted if created by us; left alone if already present |
 | `app/src/main/java/<pkg>/navigation/AppNavigation.kt` (or whichever file hosts the `NavHost`) | One `LaunchedEffect(navController) { TestHooks.navController = navController }` line inserted after `val navController = rememberNavController()` | Original restored |
-| `app/src/androidTest/java/<pkg>/FlowMapCapture.kt` | Generated fresh each run | Deleted |
+| `app/src/androidTest/java/<pkg>/QuiverCapture.kt` | Generated fresh each run | Deleted |
 
 Injections are idempotent — if the prototype already has the hooks (e.g. you kept them from a previous run), the tool detects them and leaves them in place. Animation settings (`window_animation_scale`, etc.) are also saved and restored.
 
@@ -59,7 +59,7 @@ Routes like `message_detail/{messageId}` need a concrete value before `navigate(
 
 In practice most routes resolve automatically. Add an override only when you want a specific seed record, or when the auto-resolved fallback hits a dead end.
 
-## Config file (`flow-map.config.yml`)
+## Config file (`quiver.config.yml`)
 
 Android overrides are simpler than iOS — no tap steps needed, just a concrete route or param values.
 

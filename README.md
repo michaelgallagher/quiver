@@ -1,4 +1,4 @@
-# Prototype flow map
+# Quiver
 
 Generate interactive flow maps from Express/Nunjucks prototype kit projects (NHS Prototype Kit, GOV.UK Prototype Kit, etc.). Also supports native iOS/SwiftUI and Android/Jetpack Compose prototypes.
 
@@ -33,10 +33,10 @@ This is the basic mode. You give the tool a path to your prototype, and it analy
 
 ```bash
 # Analyse templates and routes without scenarios
-npx prototype-flow-map /path/to/prototype
+npx quiver /path/to/prototype
 
 # Scope to specific start points
-npx prototype-flow-map /path/to/prototype --from "/pages/home,/pages/messages"
+npx quiver /path/to/prototype --from "/pages/home,/pages/messages"
 ```
 
 ### Scenario mode
@@ -45,13 +45,13 @@ This mode uses a `.flow` script to walk your prototype as a user would, capturin
 
 ```bash
 # Run a single scenario
-npx prototype-flow-map /path/to/prototype --scenario clinic-workflow
+npx quiver /path/to/prototype --scenario clinic-workflow
 
 # Run a set of scenarios
-npx prototype-flow-map /path/to/prototype --scenario-set core-user-journeys --desktop
+npx quiver /path/to/prototype --scenario-set core-user-journeys --desktop
 
 # List available scenarios
-npx prototype-flow-map /path/to/prototype --list-scenarios
+npx quiver /path/to/prototype --list-scenarios
 ```
 
 Scenarios are defined as `.flow` files in a `scenarios/` directory in your prototype. See ["writing scenarios"](docs/scenarios.md) for the full format.
@@ -61,17 +61,17 @@ Scenarios are defined as `.flow` files in a `scenarios/` directory in your proto
 The fastest way to create a flow map. Opens a browser, lets you click through your prototype, and builds the map in real-time from what you do.
 
 ```bash
-npx prototype-flow-map --record /path/to/prototype
+npx quiver --record /path/to/prototype
 ```
 
 A toolbar at the top of the browser controls the recording. Click through your login/setup steps, then press "Begin mapping" to start capturing pages. When you're done, press "Finish" or close the browser. See the [recording guide](docs/recording.md) for details.
 
 ### Upgrading existing maps
 
-After updating prototype-flow-map, run `upgrade` to re-bake every map in an output dir against the new viewer — no re-parse, no re-crawl, and saved layouts/hidden state are preserved. See [Upgrading existing maps](docs/viewer.md#upgrading-existing-maps).
+After updating quiver, run `upgrade` to re-bake every map in an output dir against the new viewer — no re-parse, no re-crawl, and saved layouts/hidden state are preserved. See [Upgrading existing maps](docs/viewer.md#upgrading-existing-maps).
 
 ```bash
-npx prototype-flow-map upgrade ./flow-map-output
+npx quiver upgrade ./quiver-output
 ```
 
 ## Documentation

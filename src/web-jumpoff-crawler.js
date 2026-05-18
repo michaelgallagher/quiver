@@ -29,7 +29,7 @@ const {
  *   options    — { outputDir, config, viewport }
  *                outputDir: map output dir (screenshots written to
  *                           `<outputDir>/screenshots/web/<file>.png`)
- *                config:    webJumpoffs block from flow-map.config.yml
+ *                config:    webJumpoffs block from quiver.config.yml
  *                           (enabled, maxDepth, maxPages, timeoutMs,
  *                            sameOriginOnly, screenshots, allowlist)
  *                viewport:  { width, height } — reused from the native run

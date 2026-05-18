@@ -1,6 +1,6 @@
 # Editor support for `.flow` files
 
-Syntax highlighting for `.flow` scenario files used by prototype-flow-map. Highlights:
+Syntax highlighting for `.flow` scenario files used by quiver. Highlights:
 
 - **Comments** (`# ...`) — grey
 - **Step keywords** (`Visit`, `Goto`, `Click`, `ClickLink`, `ClickButton`, `FillIn`, `Choose`, etc.) — keyword colour
@@ -24,7 +24,7 @@ Your `.flow` files should immediately get syntax highlighting. If you need to up
 Symlink the extension folder into your VS Code extensions directory:
 
 ```bash
-# macOS / Linux (run from the prototype-flow-map repo root)
+# macOS / Linux (run from the quiver repo root)
 ln -s "$(pwd)/editor/vscode-flow-syntax" ~/.vscode/extensions/flow-scenario-syntax
 
 # Then reload VS Code (Cmd+Shift+P → "Developer: Reload Window")

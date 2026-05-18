@@ -9,7 +9,7 @@
  *  2. Build the app (app target only — no test target)
  *  3. Boot or verify a simulator
  *  4. Install the built app
- *  5. For each route: terminate → launch with -flowMapRoute <route> → settle → screenshot
+ *  5. For each route: terminate → launch with -quiverRoute <route> → settle → screenshot
  *  6. Attach captured PNGs to graph nodes
  *  7. Cleanup (restore prototype files, uninstall app)
  */
@@ -20,7 +20,7 @@ const path = require("path");
 const fs = require("fs");
 const {
   detectNavigationStackPattern,
-  injectFlowMapRouteHandler,
+  injectQuiverRouteHandler,
 } = require("./swift-injector");
 
 // ---------------------------------------------------------------------------
@@ -54,7 +54,7 @@ async function crawlAndScreenshotIosFast(graph, parsedViews, options) {
 
   // 1. Inject route-handler code
   console.log("   Injecting route-handler code...");
-  const { cleanup, routePlan } = injectFlowMapRouteHandler(graph, prototypePath, parsedViews);
+  const { cleanup, routePlan } = injectQuiverRouteHandler(graph, prototypePath, parsedViews);
 
   let captured = 0;
 
@@ -133,7 +133,7 @@ async function crawlAndScreenshotIosFast(graph, parsedViews, options) {
           "launch",
           simulator.udid,
           bundleId,
-          "-flowMapRoute",
+          "-quiverRoute",
           effectiveRoute,
         ],
         { encoding: "utf-8", timeout: 15_000 },

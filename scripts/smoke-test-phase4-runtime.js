@@ -16,7 +16,7 @@ const mapName = process.argv[2] || "demonhsapp2";
 const mapDir = path.join(
   __dirname,
   "..",
-  "flow-map-output",
+  "quiver-output",
   "maps",
   mapName,
 );

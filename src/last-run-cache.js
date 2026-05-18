@@ -6,8 +6,8 @@
  * begins. Useful for spotting whether the new run is faster or slower than
  * the previous, and as a baseline for the iOS speed workstream.
  *
- * Lives at $XDG_CACHE_HOME/prototype-flow-map/last-run.json (defaults to
- * ~/.cache/prototype-flow-map/last-run.json). Best-effort: read/write
+ * Lives at $XDG_CACHE_HOME/quiver/last-run.json (defaults to
+ * ~/.cache/quiver/last-run.json). Best-effort: read/write
  * failures are silently swallowed — this is a convenience feature, not a
  * critical path.
  *
@@ -29,7 +29,7 @@ const path = require("path");
 function getCachePath() {
   const xdg =
     process.env.XDG_CACHE_HOME || path.join(os.homedir(), ".cache");
-  return path.join(xdg, "prototype-flow-map", "last-run.json");
+  return path.join(xdg, "quiver", "last-run.json");
 }
 
 function loadAll() {

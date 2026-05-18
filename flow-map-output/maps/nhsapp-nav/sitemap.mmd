@@ -1,0 +1,155 @@
+flowchart TD
+  pages_warning_screen_1["Sensitive information"]
+  pages_vaccinations_p9["Vaccinations"]
+  pages_vaccinations_linked_profiles["Vaccinations"]
+  pages_test_results_p9["Test results"]
+  pages_test_results_linked_profiles["Test results"]
+  pages_profile_p9["Profile"]
+  pages_prescriptions_p9["Prescriptions"]
+  pages_prescriptions_linked_profiles["Prescriptions"]
+  pages_messages_p9["Messages"]
+  pages_login["Sign in to the NHS App"]
+  pages_logged_out["You have logged out"]
+  pages_home_p9["Home"]
+  pages_home_linked_profiles["Home"]
+  pages_health_conditions["Health conditions"]
+  pages_health_conditions_linked_profiles["Health conditions"]
+  pages_health_choices["Health choices"]
+  pages_health_a_z["Health A-Z"]
+  pages_documents_p9["Documents"]
+  pages_documents_linked_profiles["Documents"]
+  pages_contact_your_gp_surgery["Book an appointment"]
+  pages_appointments_p9["Appointments"]
+  pages_appointments_linked_profiles["Appointments"]
+  pages_appointment_notes_gp["Appointment notes and other updates"]
+  pages_111_online["Check your symptoms - 111 online"]
+  pages_your_health_referrals["Referrals"]
+  pages_your_health_repeat_prescription_start["Which medicines do you want?"]
+  pages_vaccinations_vaccine_record["Your vaccinations"]
+  pages_vaccinations_book_or_check_vaccinations["Book or read about vaccinations"]
+  pages_test_results_test_warning_screen["Sensitive information"]
+  pages_test_results_test_results_2["GP-ordered test results"]
+  pages_profile_linked_profiles["Manage health services for others"]
+  pages_profile_healthconditions_warning_screen["Sensitive information"]
+  pages_profile_health_conditions["All health conditions"]
+  pages_profile_care_plans["Care plans"]
+  pages_profile_allergies["Allergies and adverse reactions"]
+  pages_prescriptions_select_medicines["Which medicines do you want?"]
+  pages_prescriptions_order_success["Which medicines do you want?"]
+  pages_prescriptions_current_and_past_medicines["Medicines record"]
+  pages_prescriptions_chosen_pharmacy["Check your chosen pharmacy"]
+  pages_prescriptions_check_the_progress_of_prescriptions["Check the progress of prescriptions"]
+  pages_prescriptions_check_details["Check the details of your request"]
+  pages_messages_your_messages["Your messages"]
+  pages_messages_restore_message["Restore this message?"]
+  pages_messages_removed_messages["Removed messages"]
+  pages_messages_remove_message["Remove this message?"]
+  pages_messages_message_sending["Range Surgery"]
+  pages_messages_message_filters["Filter by"]
+  pages_messages_message_4["NHS App"]
+  pages_messages_message_3["Leeds Teaching Hospitals NHS Trust"]
+  pages_messages_message_2["Leeds Teaching Hospitals NHS Trust"]
+  pages_messages_message_1["Park Road Medical Centre"]
+  pages_messages_cannot_send_your_reply["Cannot send your reply"]
+  pages_documents_your_documents["Your documents"]
+  pages_documents_hospital_docs_questionnaires["Hospital and specialist documents and questionnaires"]
+  pages_documents_documents_warning_screen["Sensitive information"]
+  pages_appointments_request_a_letter["Request a letter or information"]
+  pages_appointments_gp_appointments["Manage GP appointments"]
+  pages_appointments_check_for_gp_appointments["Check for available GP appointments"]
+  pages_appointments_ask_health_problem["Ask your GP about a health problem"]
+  pages_account_and_settings_switch_profiles["switch-profiles"]
+  scenario7_all_vaccinations["all-vaccinations"]
+  pages_u_appointments_gp_appointment_detail_upcoming["gp-appointment-detail-upcoming"]
+  pages_u_appointments_gp_appointment_detail_past["gp-appointment-detail-past"]
+  pages_u_appointments_gp_appointment_detail_past_phone["gp-appointment-detail-past-phone"]
+
+  pages_warning_screen_1 --> pages_appointment_notes_gp
+  pages_warning_screen_1 --> pages_home_p9
+  pages_vaccinations_p9 --> pages_vaccinations_book_or_check_vaccinations
+  pages_vaccinations_p9 --> pages_vaccinations_vaccine_record
+  pages_test_results_p9 --> pages_test_results_test_warning_screen
+  pages_profile_p9 --> pages_profile_linked_profiles
+  pages_profile_p9 --> pages_health_choices
+  pages_profile_p9 --> pages_profile_care_plans
+  pages_profile_p9 --> pages_logged_out
+  pages_prescriptions_p9 --> pages_your_health_repeat_prescription_start
+  pages_prescriptions_p9 --> pages_prescriptions_check_the_progress_of_prescriptions
+  pages_prescriptions_p9 --> pages_prescriptions_current_and_past_medicines
+  pages_messages_p9 --> pages_messages_your_messages
+  pages_login --> pages_home_p9
+  pages_logged_out --> pages_login
+  pages_home_p9 --> pages_prescriptions_p9
+  pages_home_p9 --> pages_appointments_p9
+  pages_home_p9 --> pages_test_results_p9
+  pages_home_p9 --> pages_vaccinations_p9
+  pages_home_p9 --> pages_health_conditions
+  pages_home_p9 --> pages_documents_p9
+  pages_home_p9 --> pages_111_online
+  pages_home_p9 --> pages_health_a_z
+  pages_home_linked_profiles --> pages_prescriptions_linked_profiles
+  pages_home_linked_profiles --> pages_appointments_linked_profiles
+  pages_home_linked_profiles --> pages_test_results_linked_profiles
+  pages_home_linked_profiles --> pages_vaccinations_linked_profiles
+  pages_home_linked_profiles --> pages_health_conditions_linked_profiles
+  pages_home_linked_profiles --> pages_documents_linked_profiles
+  pages_home_linked_profiles --> pages_111_online
+  pages_home_linked_profiles --> pages_health_a_z
+  pages_health_conditions --> pages_profile_allergies
+  pages_health_conditions --> pages_profile_healthconditions_warning_screen
+  pages_documents_p9 --> pages_documents_documents_warning_screen
+  pages_documents_p9 --> pages_documents_hospital_docs_questionnaires
+  pages_contact_your_gp_surgery --> pages_appointments_ask_health_problem
+  pages_contact_your_gp_surgery --> pages_appointments_check_for_gp_appointments
+  pages_appointments_p9 --> pages_contact_your_gp_surgery
+  pages_appointments_p9 --> pages_appointments_gp_appointments
+  pages_appointments_p9 --> pages_warning_screen_1
+  pages_appointments_p9 --> pages_appointments_request_a_letter
+  pages_your_health_repeat_prescription_start --> pages_prescriptions_chosen_pharmacy
+  pages_vaccinations_book_or_check_vaccinations --> scenario7_all_vaccinations
+  pages_test_results_test_warning_screen --> pages_test_results_test_results_2
+  pages_test_results_test_warning_screen --> pages_home_p9
+  pages_profile_linked_profiles --> pages_account_and_settings_switch_profiles
+  pages_profile_linked_profiles --> pages_your_health_referrals
+  pages_profile_healthconditions_warning_screen --> pages_profile_health_conditions
+  pages_profile_healthconditions_warning_screen --> pages_home_p9
+  pages_prescriptions_select_medicines --> pages_prescriptions_check_details
+  pages_prescriptions_chosen_pharmacy --> pages_prescriptions_select_medicines
+  pages_prescriptions_check_details --> pages_prescriptions_order_success
+  pages_messages_your_messages -. "conditional" .-> pages_messages_message_filters
+  pages_messages_your_messages -. "Submit" .-> pages_messages_message_1
+  pages_messages_your_messages -. "Submit" .-> pages_messages_message_2
+  pages_messages_your_messages -. "conditional" .-> pages_messages_message_3
+  pages_messages_your_messages -. "conditional" .-> pages_messages_message_4
+  pages_messages_your_messages -. "Removed messages" .-> pages_messages_removed_messages
+  pages_messages_restore_message --> pages_messages_your_messages
+  pages_messages_removed_messages -. "Submit" .-> pages_messages_message_1
+  pages_messages_removed_messages -. "Submit" .-> pages_messages_message_2
+  pages_messages_removed_messages -. "conditional" .-> pages_messages_message_3
+  pages_messages_removed_messages -. "conditional" .-> pages_messages_message_4
+  pages_messages_remove_message --> pages_messages_your_messages
+  pages_messages_message_sending --> pages_messages_message_2
+  pages_messages_message_sending --> pages_messages_cannot_send_your_reply
+  pages_messages_message_filters --> pages_messages_your_messages
+  pages_messages_message_4 -. "Restore message" .-> pages_messages_restore_message
+  pages_messages_message_4 -. "Remove message" .-> pages_messages_remove_message
+  pages_messages_message_3 -. "Restore message" .-> pages_messages_restore_message
+  pages_messages_message_3 -. "Remove message" .-> pages_messages_remove_message
+  pages_messages_message_2 -. "Submit" .-> pages_messages_message_sending
+  pages_messages_message_2 -. "Restore message" .-> pages_messages_restore_message
+  pages_messages_message_2 -. "Remove message" .-> pages_messages_remove_message
+  pages_messages_message_1 -. "Restore message" .-> pages_messages_restore_message
+  pages_messages_message_1 -. "Remove message" .-> pages_messages_remove_message
+  pages_messages_cannot_send_your_reply --> pages_messages_message_sending
+  pages_documents_documents_warning_screen --> pages_documents_your_documents
+  pages_documents_documents_warning_screen --> pages_home_p9
+  pages_appointments_gp_appointments --> pages_u_appointments_gp_appointment_detail_upcoming
+  pages_appointments_gp_appointments --> pages_u_appointments_gp_appointment_detail_past
+  pages_appointments_gp_appointments --> pages_u_appointments_gp_appointment_detail_past_phone
+  pages_account_and_settings_switch_profiles --> pages_home_linked_profiles
+
+  classDef start fill:#53d8fb,stroke:#0f3460,color:#000
+  classDef question fill:#e94560,stroke:#0f3460,color:#fff
+  classDef confirmation fill:#4ecca3,stroke:#0f3460,color:#000
+  classDef error fill:#ff6b6b,stroke:#0f3460,color:#fff
+  class pages_profile_p9,pages_messages_p9,pages_home_p9 start

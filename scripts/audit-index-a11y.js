@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // One-shot accessibility check for the maps index page (src/build-index.js).
-// Loads the regenerated flow-map-output/index.html in both themes, runs
+// Loads the regenerated quiver-output/index.html in both themes, runs
 // axe-core under WCAG 2.0/2.1/2.2 AA tags, asserts a few semantic
 // landmarks the generator promises, and prints a pass/fail summary.
 
@@ -9,7 +9,7 @@ const path = require("path");
 const { chromium } = require("playwright");
 
 const ROOT = path.join(__dirname, "..");
-const INDEX_PATH = path.join(ROOT, "flow-map-output", "index.html");
+const INDEX_PATH = path.join(ROOT, "quiver-output", "index.html");
 const AXE_PATH = path.join(ROOT, "node_modules", "axe-core", "axe.min.js");
 
 if (!fs.existsSync(INDEX_PATH)) {

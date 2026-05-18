@@ -1,0 +1,94 @@
+flowchart TD
+  clinics_today["Manage breast screening – NHS"]
+  clinics_upcoming["Manage breast screening – NHS"]
+  clinics_completed["Manage breast screening – NHS"]
+  clinics_all["Manage breast screening – NHS"]
+  clinics_wtrl7jud["Manage breast screening – NHS"]
+  clinics_wtrl7jud_checked_in["Manage breast screening – NHS"]
+  clinics_wtrl7jud_in_progress["Manage breast screening – NHS"]
+  clinics_wtrl7jud_complete["Manage breast screening – NHS"]
+  clinics_wtrl7jud_all["Manage breast screening – NHS"]
+  clinics_wtrl7jud_events_g6xsb1u5_appointment["Manage breast screening – NHS"]
+  clinics_wtrl7jud_events_g6xsb1u5_confirm_identity["Manage breast screening – NHS"]
+  clinics_wtrl7jud_events_g6xsb1u5_review_medical_information["Manage breast screening – NHS"]
+  clinics_wtrl7jud_events_g6xsb1u5_previous_mammograms_form["Manage breast screening – NHS"]
+  clinics_wtrl7jud_events_g6xsb1u5_take_images["Manage breast screening – NHS"]
+  clinics_wtrl7jud_events_g6xsb1u5_check_information["Manage breast screening – NHS"]
+  reading["Manage breast screening – NHS"]
+
+  clinics_today --> clinics_upcoming
+  clinics_upcoming --> clinics_completed
+  clinics_completed --> clinics_all
+  clinics_all --> clinics_wtrl7jud
+  clinics_wtrl7jud --> clinics_wtrl7jud_checked_in
+  clinics_wtrl7jud_checked_in --> clinics_wtrl7jud_in_progress
+  clinics_wtrl7jud_in_progress --> clinics_wtrl7jud_complete
+  clinics_wtrl7jud_complete --> clinics_wtrl7jud_all
+  clinics_wtrl7jud_all --> clinics_wtrl7jud_events_g6xsb1u5_appointment
+  clinics_wtrl7jud_events_g6xsb1u5_appointment --> clinics_wtrl7jud_events_g6xsb1u5_confirm_identity
+  clinics_wtrl7jud_events_g6xsb1u5_confirm_identity --> clinics_wtrl7jud_events_g6xsb1u5_review_medical_information
+  clinics_wtrl7jud_events_g6xsb1u5_review_medical_information --> clinics_wtrl7jud_events_g6xsb1u5_previous_mammograms_form
+  clinics_wtrl7jud_events_g6xsb1u5_previous_mammograms_form --> clinics_wtrl7jud_events_g6xsb1u5_take_images
+  clinics_wtrl7jud_events_g6xsb1u5_take_images --> clinics_wtrl7jud_events_g6xsb1u5_check_information
+  clinics_wtrl7jud_events_g6xsb1u5_check_information --> reading
+  clinics_today --> reading
+  clinics_today --> clinics_upcoming
+  clinics_today --> clinics_completed
+  clinics_today --> clinics_all
+  clinics_today --> clinics_wtrl7jud
+  clinics_upcoming --> reading
+  clinics_upcoming --> clinics_today
+  clinics_upcoming --> clinics_completed
+  clinics_upcoming --> clinics_all
+  clinics_upcoming --> clinics_wtrl7jud
+  clinics_completed --> reading
+  clinics_completed --> clinics_today
+  clinics_completed --> clinics_upcoming
+  clinics_completed --> clinics_all
+  clinics_completed --> clinics_wtrl7jud
+  clinics_all --> reading
+  clinics_all --> clinics_today
+  clinics_all --> clinics_upcoming
+  clinics_all --> clinics_completed
+  clinics_all --> clinics_wtrl7jud
+  clinics_wtrl7jud --> reading
+  clinics_wtrl7jud --> clinics_wtrl7jud_checked_in
+  clinics_wtrl7jud --> clinics_wtrl7jud_in_progress
+  clinics_wtrl7jud --> clinics_wtrl7jud_complete
+  clinics_wtrl7jud --> clinics_wtrl7jud_all
+  clinics_wtrl7jud_checked_in --> reading
+  clinics_wtrl7jud_checked_in --> clinics_wtrl7jud
+  clinics_wtrl7jud_checked_in --> clinics_wtrl7jud_in_progress
+  clinics_wtrl7jud_checked_in --> clinics_wtrl7jud_complete
+  clinics_wtrl7jud_checked_in --> clinics_wtrl7jud_all
+  clinics_wtrl7jud_in_progress --> reading
+  clinics_wtrl7jud_in_progress --> clinics_wtrl7jud
+  clinics_wtrl7jud_in_progress --> clinics_wtrl7jud_checked_in
+  clinics_wtrl7jud_in_progress --> clinics_wtrl7jud_complete
+  clinics_wtrl7jud_in_progress --> clinics_wtrl7jud_all
+  clinics_wtrl7jud_complete --> reading
+  clinics_wtrl7jud_complete --> clinics_wtrl7jud
+  clinics_wtrl7jud_complete --> clinics_wtrl7jud_checked_in
+  clinics_wtrl7jud_complete --> clinics_wtrl7jud_in_progress
+  clinics_wtrl7jud_complete --> clinics_wtrl7jud_all
+  clinics_wtrl7jud_all --> reading
+  clinics_wtrl7jud_all --> clinics_wtrl7jud
+  clinics_wtrl7jud_all --> clinics_wtrl7jud_checked_in
+  clinics_wtrl7jud_all --> clinics_wtrl7jud_in_progress
+  clinics_wtrl7jud_all --> clinics_wtrl7jud_complete
+  clinics_wtrl7jud_events_g6xsb1u5_appointment --> reading
+  clinics_wtrl7jud_events_g6xsb1u5_appointment --> clinics_wtrl7jud
+  clinics_wtrl7jud_events_g6xsb1u5_confirm_identity --> clinics_wtrl7jud_events_g6xsb1u5_review_medical_information
+  clinics_wtrl7jud_events_g6xsb1u5_review_medical_information --> clinics_wtrl7jud_events_g6xsb1u5_confirm_identity
+  clinics_wtrl7jud_events_g6xsb1u5_review_medical_information --> clinics_wtrl7jud_events_g6xsb1u5_take_images
+  clinics_wtrl7jud_events_g6xsb1u5_take_images --> clinics_wtrl7jud_events_g6xsb1u5_confirm_identity
+  clinics_wtrl7jud_events_g6xsb1u5_take_images --> clinics_wtrl7jud_events_g6xsb1u5_review_medical_information
+  clinics_wtrl7jud_events_g6xsb1u5_check_information --> clinics_wtrl7jud_events_g6xsb1u5_confirm_identity
+  clinics_wtrl7jud_events_g6xsb1u5_check_information --> clinics_wtrl7jud_events_g6xsb1u5_review_medical_information
+  clinics_wtrl7jud_events_g6xsb1u5_check_information --> clinics_wtrl7jud_events_g6xsb1u5_take_images
+
+  classDef start fill:#53d8fb,stroke:#0f3460,color:#000
+  classDef question fill:#e94560,stroke:#0f3460,color:#fff
+  classDef confirmation fill:#4ecca3,stroke:#0f3460,color:#000
+  classDef error fill:#ff6b6b,stroke:#0f3460,color:#fff
+  class clinics_today start

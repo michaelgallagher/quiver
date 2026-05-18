@@ -1,0 +1,17 @@
+{
+  "name": "breast-screening-check-in-workflow",
+  "title": "Breast screening: check-in-workflow",
+  "updatedAt": "2026-05-10T14:25:48.023Z",
+  "mode": "scenario",
+  "scenario": "check-in-workflow",
+  "nodeCount": 7,
+  "edgeCount": 17,
+  "hasScreenshots": true,
+  "crawlStats": {
+    "pagesVisited": 7,
+    "runtimeLinksExtracted": 171,
+    "runtimeEdgesDiscovered": 17,
+    "setupStepsExecuted": 3
+  },
+  "viewerSchemaVersion": 1
+}

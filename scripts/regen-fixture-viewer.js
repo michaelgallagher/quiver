@@ -10,7 +10,7 @@ const path = require("path");
 const { buildViewer } = require("../src/build-viewer");
 
 const mapName = process.argv[2] || "demonhsapp2";
-const rootOutputDir = path.join(__dirname, "..", "flow-map-output");
+const rootOutputDir = path.join(__dirname, "..", "quiver-output");
 const mapDir = path.join(rootOutputDir, "maps", mapName);
 const graphPath = path.join(mapDir, "graph-data.json");
 const metaPath = path.join(mapDir, "meta.json");

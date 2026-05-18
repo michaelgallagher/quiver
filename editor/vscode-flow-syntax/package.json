@@ -1,9 +1,9 @@
 {
   "name": "flow-scenario-syntax",
   "displayName": "Flow Scenario Syntax",
-  "description": "Syntax highlighting for .flow scenario files (prototype-flow-map)",
+  "description": "Syntax highlighting for .flow scenario files (quiver)",
   "version": "0.1.0",
-  "publisher": "prototype-flow-map",
+  "publisher": "quiver",
   "engines": {
     "vscode": "^1.60.0"
   },

@@ -8,10 +8,10 @@ By default the tool renders these as flat external chips. With `--web-jumpoffs` 
 
 ```bash
 # Add --web-jumpoffs to any iOS or Android run
-npx prototype-flow-map /path/to/native-prototype --web-jumpoffs
+npx quiver /path/to/native-prototype --web-jumpoffs
 ```
 
-You'll also need a `flow-map.config.yml` in the prototype root with at least one `allowlist` origin — only allowlisted origins are crawled (anything else stays a flat external node):
+You'll also need a `quiver.config.yml` in the prototype root with at least one `allowlist` origin — only allowlisted origins are crawled (anything else stays a flat external node):
 
 ```yaml
 webJumpoffs:
@@ -101,7 +101,7 @@ Defaults: `maxDepth: 3`, `maxPages: 40`, `timeoutMs: 15000`, `sameOriginOnly: tr
 
 The crawl output is cached on disk per page. Subsequent runs (e.g. running the tool against your iOS prototype after running it against the Android one, where both link to the same Heroku origins) skip the network round-trip and screenshot capture for any URL the cache already has.
 
-- **Location**: `$XDG_CACHE_HOME/prototype-flow-map/web-pages/` (default `~/.cache/prototype-flow-map/web-pages/`).
+- **Location**: `$XDG_CACHE_HOME/quiver/web-pages/` (default `~/.cache/quiver/web-pages/`).
 - **Key**: `sha256(canonical_url + config_fingerprint)`. The fingerprint covers the fields that change a single page's captured output: viewport, `hideNativeChrome`, `injectCss`, screenshots-enabled. Changing those fields auto-invalidates without manual intervention. `maxDepth`/`maxPages`/`timeoutMs`/`allowlist` are *not* in the fingerprint because they only affect BFS shape, not page content.
 - **TTL**: 24 hours by default (`webJumpoffs.cache.ttlMs`). Older entries are pruned automatically before each run.
 - **Errors aren't cached** — they retry every run, since they're often transient (timeouts, 503s).
@@ -121,7 +121,7 @@ The crawl phase prints a hit/miss summary:
 
 ## Config reference
 
-Full `webJumpoffs` block in `flow-map.config.yml`:
+Full `webJumpoffs` block in `quiver.config.yml`:
 
 ```yaml
 webJumpoffs:

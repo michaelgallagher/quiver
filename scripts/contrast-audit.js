@@ -2,10 +2,10 @@
 // Contrast audit for the generated viewer. Loads a fixture in both
 // themes, runs axe-core, and computes WCAG 2.x contrast ratios for
 // every meaningful foreground/background pairing. Output: JSON to
-// flow-map-output/contrast-audit.json.
+// quiver-output/contrast-audit.json.
 //
 // Usage: node scripts/contrast-audit.js [fixture-name]
-// Default fixture: check-in-test (smallest under flow-map-output/maps/).
+// Default fixture: check-in-test (smallest under quiver-output/maps/).
 
 const fs = require("fs");
 const path = require("path");
@@ -13,9 +13,9 @@ const { chromium } = require("playwright");
 
 const FIXTURE = process.argv[2] || "check-in-test";
 const ROOT = path.join(__dirname, "..");
-const FIXTURE_PATH = path.join(ROOT, "flow-map-output", "maps", FIXTURE, "index.html");
+const FIXTURE_PATH = path.join(ROOT, "quiver-output", "maps", FIXTURE, "index.html");
 const AXE_PATH = path.join(ROOT, "node_modules", "axe-core", "axe.min.js");
-const OUT_PATH = path.join(ROOT, "flow-map-output", "contrast-audit.json");
+const OUT_PATH = path.join(ROOT, "quiver-output", "contrast-audit.json");
 
 if (!fs.existsSync(FIXTURE_PATH)) {
   console.error("Fixture not found:", FIXTURE_PATH);

@@ -121,7 +121,7 @@ async function startServer({ outputDir, port = 3000 }) {
 
   return new Promise((resolve, reject) => {
     const server = app.listen(port, () => {
-      console.log(`\n📐 Prototype Flow Map — Server\n`);
+      console.log(`\n📐 Quiver — Server\n`);
       console.log(`   Serving:  ${resolvedDir}`);
       console.log(`   URL:      http://localhost:${port}`);
       console.log(`   API:      http://localhost:${port}/api/health\n`);

@@ -3,7 +3,7 @@
 The tool supports native iOS prototypes built with SwiftUI. It auto-detects iOS projects (by looking for `.xcodeproj` / `.xcworkspace` files) or you can force it with `--platform ios`.
 
 ```bash
-npx prototype-flow-map /path/to/ios-prototype --platform ios
+npx quiver /path/to/ios-prototype --platform ios
 ```
 
 ## How it works
@@ -35,9 +35,9 @@ npx prototype-flow-map /path/to/ios-prototype --platform ios
 - The project must have a UI Testing Bundle target (e.g. `MyAppUITests`)
 - At least one `.swift` file in the UITest target (the tool temporarily replaces it)
 
-## Config file (`.flow-map.json`)
+## Config file (`.quiver.json`)
 
-For screens that auto-detection can't handle — data-dependent UI, custom button components, item-based sheets — you can place a `.flow-map.json` file in the prototype root.
+For screens that auto-detection can't handle — data-dependent UI, custom button components, item-based sheets — you can place a `.quiver.json` file in the prototype root.
 
 ```json
 {

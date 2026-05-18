@@ -88,7 +88,7 @@ async function crawlAndScreenshotIos(graph, options) {
         scheme,
         "-destination",
         `platform=iOS Simulator,id=${simulator.udid}`,
-        `-only-testing:${uitestTarget}/FlowMapCapture`,
+        `-only-testing:${uitestTarget}/QuiverCapture`,
         "-derivedDataPath",
         derivedDataPath,
         "-quiet",

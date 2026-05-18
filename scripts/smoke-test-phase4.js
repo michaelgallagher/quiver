@@ -10,7 +10,7 @@ const fs = require("fs");
 const path = require("path");
 
 const mapName = process.argv[2] || "demonhsapp2";
-const rootOutputDir = path.join(__dirname, "..", "flow-map-output");
+const rootOutputDir = path.join(__dirname, "..", "quiver-output");
 const mapDir = path.join(rootOutputDir, "maps", mapName);
 const html = fs.readFileSync(path.join(mapDir, "index.html"), "utf-8");
 const css = fs.readFileSync(path.join(rootOutputDir, "styles.css"), "utf-8");

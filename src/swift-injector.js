@@ -1,5 +1,5 @@
 /**
- * Idempotently injects prototype-flow-map launch-args route-handler code into
+ * Idempotently injects quiver launch-args route-handler code into
  * a SwiftUI prototype for the simctl-based screenshot pipeline.
  *
  * Requires the prototype to use iOS 16+ NavigationStack(path:) with a typed
@@ -9,18 +9,18 @@
  * Inject targets:
  *  1. App entry point (@main struct) — skip splash/loading animation
  *  2. NavigationHost (owns NavigationStack(path:)) — .task dispatcher,
- *     .navigationDestination(for: String.self), flowMapSubDestination() helper
+ *     .navigationDestination(for: String.self), quiverSubDestination() helper
  *  3. Parent views with sheet/fullScreenCover children — .task to open modals
  *
  * All injections are idempotent (guarded by a sentinel comment) and are
- * reverted by calling the cleanup function returned by injectFlowMapRouteHandler.
+ * reverted by calling the cleanup function returned by injectQuiverRouteHandler.
  */
 
 const fs = require("fs");
 const path = require("path");
 const { globSync } = require("glob");
 
-const SENTINEL = "// [flow-map-injected]";
+const SENTINEL = "// [quiver-injected]";
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -61,7 +61,7 @@ function detectNavigationStackPattern(prototypePath) {
  * @returns {{ cleanup: function, routePlan: object }} cleanup restores files;
  *   routePlan is the set of routes the runner should loop over.
  */
-function injectFlowMapRouteHandler(graph, prototypePath, parsedViews) {
+function injectQuiverRouteHandler(graph, prototypePath, parsedViews) {
   const backups = []; // { filePath, original }
 
   function backup(filePath, content) {
@@ -358,7 +358,7 @@ function parseCaseMap(hostContent, enumType, prototypePath) {
  *  B. Outside the NavigationStack (as a .task on the List/root, or after closing brace):
  *     .task { ... route dispatcher ... }
  *
- *  C. Bottom of struct: flowMapSubDestination() @ViewBuilder helper
+ *  C. Bottom of struct: quiverSubDestination() @ViewBuilder helper
  */
 function injectIntoNavigationHost(content, routePlan, enumType, parsedViews, prototypePath) {
   const { level1Routes, pushRoutes, pushableViews } = routePlan;
@@ -370,7 +370,7 @@ function injectIntoNavigationHost(content, routePlan, enumType, parsedViews, pro
     "m",
   );
   // The block ends at the closing } of the closure — we need to find it with brace-counting
-  const ndStringHandler = `\n            .navigationDestination(for: String.self) { viewName in\n                ${SENTINEL}\n                flowMapSubDestination(viewName)\n            }`;
+  const ndStringHandler = `\n            .navigationDestination(for: String.self) { viewName in\n                ${SENTINEL}\n                quiverSubDestination(viewName)\n            }`;
 
   let result = content;
 
@@ -385,7 +385,7 @@ function injectIntoNavigationHost(content, routePlan, enumType, parsedViews, pro
   const taskCode = generateTaskCode(level1Routes, pushableViews, enumType);
   result = insertTaskAfterNavigationStack(result, taskCode);
 
-  // -- C: flowMapSubDestination helper --
+  // -- C: quiverSubDestination helper --
   const helperCode = generateHelperFunction(pushRoutes, parsedViews, prototypePath);
   result = insertHelperAtStructBottom(result, helperCode);
 
@@ -496,9 +496,9 @@ function generateTaskCode(level1Routes, pushableViews, enumType) {
 
   return `        .task {
             ${SENTINEL}
-            // prototype-flow-map: read -flowMapRoute launch arg and dispatch navigation.
+            // quiver: read -quiverRoute launch arg and dispatch navigation.
             let args = ProcessInfo.processInfo.arguments
-            guard let i = args.firstIndex(of: "-flowMapRoute"), i + 1 < args.count else { return }
+            guard let i = args.firstIndex(of: "-quiverRoute"), i + 1 < args.count else { return }
             let segments = args[i + 1].split(separator: "/").map(String.init)
             guard let first = segments.first else { return }
             let level1: ${enumType}?
@@ -530,10 +530,10 @@ function generateHelperFunction(pushRoutes, parsedViews, prototypePath) {
     })
     .join("\n");
 
-  return `    // prototype-flow-map: resolve String navigation path segments to views.
+  return `    // quiver: resolve String navigation path segments to views.
     ${SENTINEL}
     @ViewBuilder
-    private func flowMapSubDestination(_ viewName: String) -> some View {
+    private func quiverSubDestination(_ viewName: String) -> some View {
         switch viewName {
 ${cases}
         default: EmptyView()
@@ -596,7 +596,7 @@ function hasRequiredInitParams(viewName, parsedViews, prototypePath) {
 // ---------------------------------------------------------------------------
 
 /**
- * Find the @main App struct and inject a splash-skip when -flowMapRoute is present.
+ * Find the @main App struct and inject a splash-skip when -quiverRoute is present.
  * Targets the common pattern of an @State showSplash / isLoading bool.
  *
  * Returns true if injected, false if no matching pattern found (non-fatal).
@@ -622,14 +622,14 @@ function injectAppSplashSkip(prototypePath, backup) {
 
     const varName = splashVarMatch[1];
 
-    // Inject an init() that sets the var to false when -flowMapRoute is present.
+    // Inject an init() that sets the var to false when -quiverRoute is present.
     // Strategy: find the struct declaration line and insert init() after the
     // State property declarations block.
     const initInjection = `
     ${SENTINEL}
     init() {
-        // prototype-flow-map: skip splash/animation when launched with -flowMapRoute.
-        if ProcessInfo.processInfo.arguments.contains("-flowMapRoute") {
+        // quiver: skip splash/animation when launched with -quiverRoute.
+        if ProcessInfo.processInfo.arguments.contains("-quiverRoute") {
             self._${varName} = State(initialValue: false)
         }
     }
@@ -794,9 +794,9 @@ function generateSheetTriggerTask(parentViewName, triggers) {
 
   return `        .task {
             ${SENTINEL}
-            // prototype-flow-map: open sheet/cover when route targets a modal child.
+            // quiver: open sheet/cover when route targets a modal child.
             let args = ProcessInfo.processInfo.arguments
-            guard let i = args.firstIndex(of: "-flowMapRoute"), i + 1 < args.count else { return }
+            guard let i = args.firstIndex(of: "-quiverRoute"), i + 1 < args.count else { return }
             let segments = args[i + 1].split(separator: "/").map(String.init)
             guard segments.count > 1 else { return }
             guard segments.contains("${parentSegmentGuess}") || segments.first == "${parentSegment}" else { return }
@@ -830,21 +830,21 @@ function insertSheetTriggerTask(content, taskCode) {
 
 /**
  * Inject route-handler code into a sheet child that owns its own NavigationStack(path:).
- * Adds: .navigationDestination(for: String.self), .task, and flowMapSubNavDestination helper.
+ * Adds: .navigationDestination(for: String.self), .task, and quiverSubNavDestination helper.
  */
 function injectIntoSubNavigationHost(content, subHost, parsedViews, prototypePath) {
   const { viewName, pushRoutes, pushableViews } = subHost;
   const pathVar = extractNavigationStackPathVar(content) || "path";
 
   // A: insert .navigationDestination(for: String.self) inside the NavigationStack content
-  const ndStringHandler = `\n            .navigationDestination(for: String.self) { viewName in\n                ${SENTINEL}\n                flowMapSubNavDestination(viewName)\n            }`;
+  const ndStringHandler = `\n            .navigationDestination(for: String.self) { viewName in\n                ${SENTINEL}\n                quiverSubNavDestination(viewName)\n            }`;
   let result = insertStringHandlerIntoSubNavigationStack(content, ndStringHandler);
 
   // B: insert .task after the NavigationStack's closing brace
   const taskCode = generateSubHostTaskCode(viewName, pushableViews, pathVar);
   result = insertTaskAfterNavigationStack(result, taskCode);
 
-  // C: insert flowMapSubNavDestination helper into the named struct (not just "last struct in file")
+  // C: insert quiverSubNavDestination helper into the named struct (not just "last struct in file")
   const helperCode = generateSubHostHelperFunction(pushRoutes, parsedViews, prototypePath);
   result = insertHelperIntoNamedStruct(result, viewName, helperCode);
 
@@ -894,9 +894,9 @@ function generateSubHostTaskCode(viewName, pushableViews, pathVar) {
 
   return `        .task {
             ${SENTINEL}
-            // prototype-flow-map: push route within sub-NavigationStack after sheet opens.
+            // quiver: push route within sub-NavigationStack after sheet opens.
             let args = ProcessInfo.processInfo.arguments
-            guard let i = args.firstIndex(of: "-flowMapRoute"), i + 1 < args.count else { return }
+            guard let i = args.firstIndex(of: "-quiverRoute"), i + 1 < args.count else { return }
             let segments = args[i + 1].split(separator: "/").map(String.init)
             guard let myIdx = segments.firstIndex(of: "${viewName}"), myIdx + 1 < segments.count else { return }
             let subPushableViews: Set<String> = [
@@ -912,7 +912,7 @@ ${pushableArray}
 }
 
 /**
- * Generate the flowMapSubNavDestination @ViewBuilder helper for a sub-NavigationStack host.
+ * Generate the quiverSubNavDestination @ViewBuilder helper for a sub-NavigationStack host.
  */
 function generateSubHostHelperFunction(pushRoutes, parsedViews, prototypePath) {
   const cases = pushRoutes
@@ -925,10 +925,10 @@ function generateSubHostHelperFunction(pushRoutes, parsedViews, prototypePath) {
     })
     .join("\n");
 
-  return `    // prototype-flow-map: resolve sub-NavigationStack path segments to views.
+  return `    // quiver: resolve sub-NavigationStack path segments to views.
     ${SENTINEL}
     @ViewBuilder
-    private func flowMapSubNavDestination(_ viewName: String) -> some View {
+    private func quiverSubNavDestination(_ viewName: String) -> some View {
         switch viewName {
 ${cases}
         default: EmptyView()
@@ -1151,7 +1151,7 @@ function findStoredProperties(typeName, prototypePath) {
 
 module.exports = {
   detectNavigationStackPattern,
-  injectFlowMapRouteHandler,
+  injectQuiverRouteHandler,
   buildRoutePlan, // exported for testing
   parseCaseMap,   // exported for testing
 };

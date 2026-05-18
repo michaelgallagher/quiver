@@ -1,6 +1,6 @@
 # Plans
 
-Forward-looking docs for prototype-flow-map. Reference docs (how the tool works today, CLI flags, platform support) live one level up at [`docs/`](../).
+Forward-looking docs for quiver. Reference docs (how the tool works today, CLI flags, platform support) live one level up at [`docs/`](../).
 
 ## What's where
 

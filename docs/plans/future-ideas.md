@@ -192,8 +192,8 @@ Plus error-recovery tests: what happens when an interactive step fails mid-scena
 ### CLI improvements
 
 - **Auto-detection improvements.** Currently auto-detects iOS/Android by file presence. Could be more aggressive (read `package.json` to detect web prototype kit, etc.).
-- **`prototype-flow-map init`.** Generate a starter `flow-map.config.yml` based on auto-detection.
-- **`prototype-flow-map list`.** Show all generated maps in the output dir with metadata (generated date, run duration, node count).
+- **`quiver init`.** Generate a starter `quiver.config.yml` based on auto-detection.
+- **`quiver list`.** Show all generated maps in the output dir with metadata (generated date, run duration, node count).
 
 **Why deferred:** quality-of-life only, no active blockers.
 

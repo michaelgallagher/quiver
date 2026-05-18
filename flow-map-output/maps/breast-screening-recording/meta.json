@@ -1,0 +1,10 @@
+{
+  "name": "breast-screening-recording",
+  "title": "Breast screening recording",
+  "updatedAt": "2026-05-10T14:25:48.027Z",
+  "mode": "recorded",
+  "nodeCount": 16,
+  "edgeCount": 70,
+  "hasScreenshots": true,
+  "viewerSchemaVersion": 1
+}
