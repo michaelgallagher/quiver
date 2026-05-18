@@ -1,5 +1,6 @@
 node_modules/
 quiver-output/
+flow-map-output/
 .cache/
 *.log
 .DS_Store
