@@ -18,11 +18,37 @@ The output is an HTML artifact similar to the existing flow map viewer but purpo
 
 ## Variant sources
 
-Three levels of variant, from lightest to heaviest:
+Two primary approaches, prioritized by practicality for design teams working in code:
 
-### Level 1 — Token/theme overrides (no code changes)
+### Primary: Git branches (zero setup)
 
-A `variants.yaml` in the prototype defines named variants as key-value token maps:
+Each variant is a branch. The tool checks out each branch, builds, captures the target screens, and restores:
+
+```bash
+npx quiver compare --branches main,variant/compact-cards,variant/airy-cards \
+                   --screens home,messages
+```
+
+This requires no configuration file and no prototype-side changes. The code differences on each branch ARE the variants. Designers already work this way — branching to try something is natural — so the tool meets them where they are.
+
+**Strengths:**
+- Works immediately with any prototype, any change (visual, structural, navigational).
+- No ceremony — just branch, make changes, run compare.
+- Supports arbitrarily complex differences between variants (not limited to parametric changes).
+
+**Limitations:**
+- Branch management overhead with 4–5+ variants (naming, keeping in sync with main, merge conflicts).
+- Each branch requires a full build, so comparison time scales linearly with variant count.
+- If variants only differ by a few token values, maintaining separate branches is more overhead than necessary.
+
+**Practical tips for designers:**
+- Use a naming convention like `variant/<feature>/<name>` (e.g. `variant/card-style/compact`).
+- Keep variant branches short-lived — compare, pick, merge the winner, delete the rest.
+- If your variants diverge from main significantly, rebase before comparing so the diff is clean.
+
+### Secondary: Token/theme overrides (variants.yaml)
+
+For teams that have invested in a design-token layer, a `variants.yaml` in the prototype defines named variants as key-value token maps:
 
 ```yaml
 # variants.yaml
@@ -51,28 +77,38 @@ variants:
       corner.radius: 12
 ```
 
-The prototype needs a thin integration point (a `QuiverVariantTokens` object or similar) that the test harness can populate before capture. This is analogous to how `TestHooks.navController` is injected today.
+The prototype needs a thin integration point (a `QuiverTokens` object) that the test harness populates before capture, analogous to how `TestHooks.navController` is injected today.
 
-### Level 2 — Git branches
+**Strengths:**
+- Fastest iteration cycle — change yaml values, re-run, no branch switching or rebuilding.
+- Clean for the common case of "same layout, different visual tuning" (spacing, color, type scale, corner radii).
+- No merge conflicts, no branch management.
+- Easy to generate many variants (5, 10, 20 spacing values) without branch explosion.
 
-Each variant is a branch. The tool checks out each branch, builds, captures the target screens, and restores:
+**Limitations:**
+- Only covers parametric changes — things expressible as a single value. Cannot swap components, layouts, or navigation structure.
+- Requires upfront investment: the prototype must be built with a token layer. If values are hardcoded as inline literals, someone must refactor before tokens work.
+- Token keys are a stringly-typed contract between yaml and code — a typo silently does nothing, no autocomplete, no type checking.
+- Per-screen, not per-component — captures the full screen even if the variant only affects one button.
 
-```bash
-npx quiver compare --branches main,variant/compact-cards,variant/airy-cards \
-                   --screens home,messages
-```
+**What designers need to do (one-time setup):**
 
-This requires no `variants.yaml` — the code differences ARE the variants.
+1. Create a tokens object the UI reads from (see "Token injection" section below).
+2. Replace hardcoded literals in composables/views with reads from the tokens object.
+3. That's it — `variants.yaml` handles the rest per comparison.
 
-### Level 3 — Build flavors / Gradle product flavors
+If your prototype already uses a theme/token system (Material 3 theme, custom design system), the wiring is minimal. If values are scattered as inline literals, the refactor is non-trivial but good practice regardless.
 
-For Android, variants can map to Gradle product flavors:
+### Future / maybe: Build flavors
 
-```bash
-npx quiver compare --flavors default,compact,airy --screens home,messages
-```
+Gradle product flavors (Android) or Xcode build configurations (iOS) could theoretically drive variants, but in practice this is too heavyweight for design exploration:
 
-Each flavor is built and captured independently.
+- Each flavor requires `build.gradle.kts` changes and a new source set directory.
+- Each flavor is a full build (30–90s per variant).
+- Adding/removing variants is high-friction compared to branches or yaml.
+- Designers comfortable with Compose may not be comfortable with Gradle flavor configuration.
+
+Flavors are better suited to permanent structural differences (free/paid, staging/production) than ephemeral design exploration. This approach is **not planned for initial delivery** but could be added later if a real use case emerges where branches and tokens aren't sufficient.
 
 ## Targeted capture
 
@@ -104,14 +140,24 @@ Layout is deliberately simple — a CSS grid, not a DAG. No dagre dependency.
 npx quiver compare <prototype-path> [options]
 
 Options:
-  --variants <path>        Path to variants.yaml (default: <prototype>/variants.yaml)
+  --branches <list>        Comma-separated branch names (primary mode)
   --screens <list>         Comma-separated screen IDs to capture (overrides yaml)
-  --branches <list>        Comma-separated branch names (Level 2 mode)
-  --flavors <list>         Comma-separated Gradle flavors (Level 3 mode, Android only)
+  --variants <path>        Path to variants.yaml (token mode; default: <prototype>/variants.yaml)
   --output <dir>           Output directory (default: quiver-compare-output/)
   --scenario <name>        Run a .flow scenario per variant and capture each visited screen
   --diff                   Enable pixel-diff generation between adjacent variants
   --platform ios|android   Force platform (default: auto-detect)
+```
+
+The two primary invocation patterns:
+
+```bash
+# Branch mode — compare across branches
+npx quiver compare . --branches main,variant/compact,variant/airy --screens home,messages
+
+# Token mode — compare token overrides defined in yaml (requires token layer in prototype)
+npx quiver compare . --screens home,messages
+# (reads variants.yaml from prototype root)
 ```
 
 ## Scenario-driven comparison
@@ -147,12 +193,12 @@ Same pattern via a `QuiverTokens` class with `@Published` properties, injected i
 
 ## Implementation steps
 
-### Phase 1 — Branch-based comparison (Level 2)
+### Phase 1 — Branch-based comparison (core)
 
-Simplest to ship first because it requires zero prototype-side changes:
+Ship first because it requires zero prototype-side changes and covers the widest range of use cases:
 
 1. **New CLI subcommand** — `compare` in `bin/cli.js`. Parse `--branches`, `--screens`, `--output`.
-2. **Branch loop orchestration** — for each branch: `git stash` current state, `git checkout <branch>`, run targeted capture, collect screenshots into `<output>/<branch>/screenshots/`.
+2. **Branch loop orchestration** — for each branch: `git stash` current state, `git checkout <branch>`, run targeted capture, collect screenshots into `<output>/<branch>/screenshots/`. Restore original branch + stash pop at the end.
 3. **Targeted capture filter** — add a `filterScreens` option to `crawlAndScreenshotAndroid` and `crawlAndScreenshotIos` that prunes `graph.nodes` before generating tests.
 4. **Comparison viewer** — `src/build-comparison-viewer.js`. Grid layout, labels, expand-on-click.
 5. **Result file** — "pick this one" writes `comparison-result.json`.
@@ -162,43 +208,54 @@ Simplest to ship first because it requires zero prototype-side changes:
 6. **Embed pixelmatch** (or a lightweight alternative) in the viewer JS.
 7. **Diff toggle UI** — click two column headers to diff them; overlay heatmap on each cell.
 
-### Phase 3 — Token overrides (Level 1)
+### Phase 3 — Token overrides (variants.yaml)
+
+For teams that want faster iteration on parametric changes without branch-switching:
 
 8. **`variants.yaml` parser** — read variant definitions, validate token keys.
 9. **Token injection for Android** — auto-inject `QuiverTokens.kt`, set overrides in generated test.
 10. **Token injection for iOS** — same pattern via `QuiverTokens` environment object.
-11. **Documentation** — setup guide for token integration in prototypes.
+11. **Documentation** — setup guide for token integration in prototypes, including the one-time refactor needed to make a prototype token-driven.
 
 ### Phase 4 — Scenario-driven comparison
 
 12. **Wire `--scenario` to the branch/token loop** — run the scenario per variant, collect per-step screenshots.
-13. **Sequential row layout in viewer** — show journey steps as ordered rows.
+13. **Sequential row layout in viewer** — show journey steps as ordered rows, so you see each variant at the same point in a flow.
 
 ### Phase 5 — Polish
 
-14. **Gradle flavors** (Level 3) — build each flavor independently.
-15. **Annotations** — sticky notes per cell, persisted to JSON.
-16. **Export** — PDF or image grid export for sharing outside the tool.
+14. **Annotations** — sticky notes per cell, persisted to JSON.
+15. **Export** — PDF or image grid export for sharing outside the tool.
+16. **Labels from git** — auto-populate variant labels from branch names or most recent commit message, so the viewer is informative without manual labelling.
 
 ## Files to create / modify
+
+### Phase 1 (branch-based — the MVP)
 
 | File | Change |
 |------|--------|
 | `bin/cli.js` | Add `compare` subcommand |
-| `src/compare-orchestrator.js` | New — branch checkout loop, variant iteration |
+| `src/compare-orchestrator.js` | New — branch checkout loop, targeted capture per branch |
 | `src/build-comparison-viewer.js` | New — HTML/CSS/JS grid viewer |
 | `src/kotlin-crawler.js` | Add `filterScreens` option |
 | `src/swift-crawler.js` | Add `filterScreens` option |
-| `src/variants-parser.js` | New — parse `variants.yaml` |
-| `src/token-injector-android.js` | New (Phase 3) — inject `QuiverTokens.kt` |
-| `src/token-injector-ios.js` | New (Phase 3) — inject `QuiverTokens` environment |
 | `docs/variant-comparison.md` | New — user-facing guide |
+
+### Phase 3 (token overrides — only if/when needed)
+
+| File | Change |
+|------|--------|
+| `src/variants-parser.js` | New — parse `variants.yaml` |
+| `src/token-injector-android.js` | New — inject `QuiverTokens.kt` |
+| `src/token-injector-ios.js` | New — inject `QuiverTokens` environment |
 
 ## Design decisions
 
 **Why inside Quiver, not a separate tool?** The screenshot capture layer (TestHooks injection, simctl orchestration, adb install/instrument/pull, animation disabling, cleanup/restore) is the hardest and most maintenance-intensive piece. It already works in Quiver and breaks with Xcode/AGP updates — maintaining it in two repos doubles that burden for no benefit.
 
-**Why branch-based first?** Zero prototype-side setup. Designers already work on branches. The token system (Level 1) is more elegant but requires each prototype to integrate `QuiverTokens` — that's a higher adoption bar for Phase 1.
+**Why branch-based as the primary approach?** Zero prototype-side setup. Designers already work on branches. Any change — visual, structural, navigational — can be a variant. The token system is more ergonomic for rapid parametric iteration but requires each prototype to integrate a `QuiverTokens` layer — a higher adoption bar that not every team will want to pay. Branches are the universal baseline; tokens are an opt-in acceleration for teams that invest in it.
+
+**Why not Gradle flavors?** Too heavyweight for design exploration. Each flavor needs `build.gradle.kts` changes, a new source set, and a full rebuild. The overhead of adding/removing a flavor is disproportionate to "try a different corner radius." Flavors solve a different problem (permanent build variants like free/paid). If a real use case emerges, they can be added later without changing the core architecture.
 
 **Why a separate viewer file?** The flow map viewer (`build-viewer.js`) is complex — dagre layout, edge rendering, subgraph columns, detail panels. The comparison viewer is a simple grid. Sharing code would mean abstracting two very different layouts behind one interface. Keeping them separate is cleaner and lets each evolve independently.
 
