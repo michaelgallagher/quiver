@@ -38,5 +38,6 @@ No active workstreams at this time.
 
 Next candidates (in rough priority order) — see [`future-ideas.md`](future-ideas.md) and [`layout-overlap-fixes.md`](layout-overlap-fixes.md) for detail:
 
-1. **Layout: node overlap** — screenshot thumbnails still overlap in some maps (tight `ranksep`/`nodesep` constants). Plan is in [`layout-overlap-fixes.md`](layout-overlap-fixes.md); start with Layer 1 (scale sep constants when screenshots are on) and re-measure.
-2. **iOS: orphaned nodes** — filter views with no incoming navigation edges from the graph (or badge them in the viewer), so dead code doesn't appear as screenless nodes. See future-ideas.md for Option A vs B tradeoffs.
+1. **Variant comparison mode** — `quiver compare` subcommand for capturing the same screens under multiple variant conditions (branches, flavors, token overrides) and outputting a side-by-side comparison viewer. Plan is in [`variant-comparison.md`](variant-comparison.md).
+2. **Layout: node overlap** — screenshot thumbnails still overlap in some maps (tight `ranksep`/`nodesep` constants). Plan is in [`layout-overlap-fixes.md`](layout-overlap-fixes.md); start with Layer 1 (scale sep constants when screenshots are on) and re-measure.
+3. **iOS: orphaned nodes** — filter views with no incoming navigation edges from the graph (or badge them in the viewer), so dead code doesn't appear as screenless nodes. See future-ideas.md for Option A vs B tradeoffs.
