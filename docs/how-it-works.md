@@ -1,23 +1,5 @@
 # How it works
 
-## Web prototypes — record mode
-
-1. **Starts the prototype server** and launches a headed (visible) browser
-2. **Injects a toolbar** into every page via `page.addInitScript()` for phase control and interaction capture
-3. **Setup phase**: the user clicks through login/setup steps, which are recorded as `Goto` and interaction steps
-4. **Map phase** (after clicking "Begin mapping"): each page navigation triggers a real-time capture:
-   - Hides the toolbar, dismisses modals, repositions fixed elements
-   - Takes a full-page screenshot
-   - Extracts all links from the rendered DOM
-   - Builds a graph node for the page
-5. **On finish** (toolbar button or browser close):
-   - Builds edges between pages from extracted links, using canonical-to-raw URL mapping to match link targets to visited nodes
-   - Groups tab siblings (pages with mutual cross-links) into the same layout rank
-   - Generates the viewer, Mermaid sitemap, and metadata
-   - Saves a `.flow` script (with dynamic URLs converted to `Snapshot` steps for replay robustness)
-
-Key files: `src/recorder.js`, `src/recorder-inject.js`, `src/flow-serializer.js`
-
 ## Web prototypes — static mode
 
 1. **Scans** `app/views/` for all `.html` template files
@@ -44,6 +26,24 @@ Key files: `src/recorder.js`, `src/recorder-inject.js`, `src/flow-serializer.js`
 5. **Enriches** the runtime graph with static analysis metadata (titles, file paths, node types)
 6. **Generates** a viewer, Mermaid sitemap, and metadata per scenario
 7. **Optionally merges** multiple scenario graphs into a combined view
+
+## Web prototypes — record mode
+
+1. **Starts the prototype server** and launches a headed (visible) browser
+2. **Injects a toolbar** into every page via `page.addInitScript()` for phase control and interaction capture
+3. **Setup phase**: the user clicks through login/setup steps, which are recorded as `Goto` and interaction steps
+4. **Map phase** (after clicking "Begin mapping"): each page navigation triggers a real-time capture:
+   - Hides the toolbar, dismisses modals, repositions fixed elements
+   - Takes a full-page screenshot
+   - Extracts all links from the rendered DOM
+   - Builds a graph node for the page
+5. **On finish** (toolbar button or browser close):
+   - Builds edges between pages from extracted links, using canonical-to-raw URL mapping to match link targets to visited nodes
+   - Groups tab siblings (pages with mutual cross-links) into the same layout rank
+   - Generates the viewer, Mermaid sitemap, and metadata
+   - Saves a `.flow` script (with dynamic URLs converted to `Snapshot` steps for replay robustness)
+
+Key files: `src/recorder.js`, `src/recorder-inject.js`, `src/flow-serializer.js`
 
 ## iOS prototypes
 

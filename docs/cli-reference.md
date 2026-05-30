@@ -51,7 +51,6 @@ npx quiver /path/to/prototype --scenario clinic-workflow --serve --port 3000
 
 | Option | Default | Description |
 |---|---|---|
-| `--record [filename]` | — | Record a scenario interactively (opens a browser). Optional filename, default: `recorded.flow` |
 | `-o, --output` | `./quiver-output` | Output directory |
 | `-p, --prototype-port` | `4321` | Port to start the prototype kit server on (web prototypes only) |
 | `--width` | `375` | Screenshot viewport width (pixels) |
@@ -59,9 +58,6 @@ npx quiver /path/to/prototype --scenario clinic-workflow --serve --port 3000
 | `--desktop` | — | Use desktop viewport (1280x800) instead of mobile |
 | `--no-screenshots` | — | Skip screenshotting (much faster) |
 | `--mode` | `static` | Mapping mode: `static`, `scenario`, or `audit` |
-| `--scenario` | — | Run a single named scenario (implies `--mode scenario`) |
-| `--scenario-set` | — | Run a named set of scenarios (implies `--mode scenario`) |
-| `--list-scenarios` | — | List available scenarios and exit |
 | `--from` | — | Only show pages reachable from these paths (comma-separated) |
 | `--base-path` | — | Only include pages under this path prefix |
 | `--exclude` | — | Exclude pages matching these paths (comma-separated, supports globs) |
@@ -69,6 +65,10 @@ npx quiver /path/to/prototype --scenario clinic-workflow --serve --port 3000
 | `--runtime-crawl` | `false` | Add runtime DOM link extraction to static mode |
 | `--name` | prototype folder slug | Map folder slug (lowercase alphanumeric + hyphens) |
 | `--title` | prototype folder name | Human-readable map title shown in index |
+| `--scenario` | — | Run a single named scenario (implies `--mode scenario`) |
+| `--scenario-set` | — | Run a named set of scenarios (implies `--mode scenario`) |
+| `--list-scenarios` | — | List available scenarios and exit |
+| `--record [filename]` | — | Record a scenario interactively (opens a browser). Optional filename, default: `recorded.flow` |
 | `--export-pdf` | `false` | Generate a PDF of the flow map (`map.pdf`) |
 | `--pdf-mode` | `canvas` | PDF mode: `canvas` (full-canvas) or `snapshot` (A3 fit-to-screen) |
 | `--platform` | auto-detected | Project platform: `web`, `ios`, or `android`. Android uses `ANDROID_SERIAL` env var to pick a device when multiple are attached |
@@ -86,9 +86,9 @@ npx quiver /path/to/prototype --scenario clinic-workflow --serve --port 3000
 
 | Mode | Purpose | Best for |
 |---|---|---|
-| `record` | Interactive recording -- click through your prototype in a browser | Quick maps, exploration, non-technical users |
 | `static` | Broad static analysis of all templates and routes (this is the default mode) | Simple prototypes without seed data |
 | `scenario` | Map realistic user journeys with setup steps and scoped crawling | Prototypes with seed data, stateful flows, or complex routing |
+| `record` | Interactive recording -- click through your prototype in a browser | Quick maps, exploration, non-technical users |
 | `audit` | Static analysis plus runtime crawl of every discoverable page | Debugging and coverage checks |
 
 ## `serve` subcommand

@@ -62,7 +62,7 @@ Visit /clinics/completed
 Visit /clinics/all
 
 # Navigate into an event dynamically
-Goto /clinics/wtrl7jud/all
+Goto /clinics/abcd1234/all
 Click "a:has-text('View appointment')"
 Snapshot
 
@@ -97,7 +97,7 @@ For more detailed examples, you can check out the examples in `docs/example-scen
 | `ClickButton` | `ClickButton "Continue"` | Click a button by its visible text (also matches `<a role="button">`) |
 | `FillIn` | `FillIn "First name" with "Frankie"` | Fill a field by its label |
 | `Select … from` | `Select "Email" from "Contact preference"` | Select a dropdown option by label |
-| `Check` | `Check "Right breast"` | Check a checkbox by its label |
+| `Check` | `Check "Right shoulder"` | Check a checkbox by its label |
 | `Choose` | `Choose "At an NHS hospital"` | Select a radio button by its label |
 
 **CSS-selector (escape hatch)** — use when labels are ambiguous or elements lack accessible names:
