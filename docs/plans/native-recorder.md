@@ -1,6 +1,6 @@
 # Native session recorder
 
-> **Status: future idea — not scheduled.** Brings the web recorder's "watch a real session" approach to the native (iOS/Android) pipeline, so native maps can be built from a real human click-through instead of static parsing + programmatic navigation. Self-contained; promote to `roadmap.md` when prioritised.
+> **Status: active workstream** (see [`roadmap.md`](roadmap.md)). Brings the web recorder's "watch a real session" approach to the native (iOS/Android) pipeline, so native maps can be built from a real human click-through instead of static parsing + programmatic navigation.
 
 ## Why
 

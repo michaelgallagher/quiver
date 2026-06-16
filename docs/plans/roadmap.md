@@ -34,10 +34,17 @@ For full architecture see [`../how-it-works.md`](../how-it-works.md).
 
 ## Active
 
-No active workstreams at this time.
+### Native session recorder
+
+Bring the web recorder's "watch a real session" approach to the native (iOS/Android) pipeline. Native maps today come only from static parsing + programmatic capture, which carries the **seed-data problem** — Android extracts seed IDs from ViewModel source, iOS needs hand-written `overrides.<view>.steps` — so they map what the parser can reach with fabricated data, not what a real user experiences with real state. A native recorder closes that gap the same way `--record` does for web: the human drives the prototype and Quiver observes.
+
+**Design (full detail in [`native-recorder.md`](native-recorder.md)):** an in-app navigation hook — extending the injectors that already ship (Android `TestHooks` + `LaunchedEffect`; iOS `src/swift-injector.js`) — emits a screen-change event over logcat/oslog; the host listens and captures a screenshot via the existing `adb`/`simctl` path on each event; output is a `.flow` script + the standard `generateNative` viewer. Net-new surface is small: an event observer per injector, a host-side listener, and a `.flow` writer (the web recorder's writer is a near-template).
+
+**Sequence:** Android first (lowest effort — the NavHost injection and `adb` capture already exist), then iOS (medium — label fidelity is the wrinkle; optional `.quiverScreen("Name")` modifier for clean names). A no-injection fallback (Android `AccessibilityService`, or driver/CV) is later, behind the same `SessionEvent → .flow` adapter. No third-party software on the recommended path. See [`native-recorder.md`](native-recorder.md) for "Files to change" and per-platform implementation detail.
 
 Next candidates (in rough priority order) — see [`future-ideas.md`](future-ideas.md) and [`layout-overlap-fixes.md`](layout-overlap-fixes.md) for detail:
 
-1. **Variant comparison mode** — `quiver compare` subcommand for capturing the same screens under multiple variant conditions (branches, flavors, token overrides) and outputting a side-by-side comparison viewer. Plan is in [`variant-comparison.md`](variant-comparison.md).
-2. **Layout: node overlap** — screenshot thumbnails still overlap in some maps (tight `ranksep`/`nodesep` constants). Plan is in [`layout-overlap-fixes.md`](layout-overlap-fixes.md); start with Layer 1 (scale sep constants when screenshots are on) and re-measure.
-3. **iOS: orphaned nodes** — filter views with no incoming navigation edges from the graph (or badge them in the viewer), so dead code doesn't appear as screenless nodes. See future-ideas.md for Option A vs B tradeoffs.
+1. **Server collaboration features (Phases 2–5)** — comments/annotations, lightweight identity + SQLite, real-time sync, and web-triggered generation, building on the delivered Phase 1 (server + positions). Detail in [`future-ideas.md`](future-ideas.md#server-collaboration-features-phases-25).
+2. **Variant comparison mode** — `quiver compare` subcommand for capturing the same screens under multiple variant conditions (branches, flavors, token overrides) and outputting a side-by-side comparison viewer. Plan is in [`variant-comparison.md`](variant-comparison.md).
+3. **Layout: node overlap** — screenshot thumbnails still overlap in some maps (tight `ranksep`/`nodesep` constants). Plan is in [`layout-overlap-fixes.md`](layout-overlap-fixes.md); start with Layer 1 (scale sep constants when screenshots are on) and re-measure.
+4. **iOS: orphaned nodes** — filter views with no incoming navigation edges from the graph (or badge them in the viewer), so dead code doesn't appear as screenless nodes. See future-ideas.md for Option A vs B tradeoffs.
