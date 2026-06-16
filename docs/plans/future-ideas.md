@@ -9,6 +9,16 @@
 
 ---
 
+## Native session recorder
+
+Bring the web recorder's "watch a real session" approach to the native (iOS/Android) pipeline. Today native maps come only from static parsing + programmatic capture, which carries the **seed-data problem** (Android extracts seed IDs from ViewModels; iOS needs hand-written `overrides.<view>.steps`) — so they map what the parser can reach with fabricated data, not what a real user experiences with real state. A native recorder closes that gap the same way the web recorder does for web.
+
+Full plan — architecture (in-app nav hook emitting events over logcat/oslog, screenshots via the existing `adb`/`simctl` path, output as `.flow` + the standard viewer), capture-backend ranking, per-platform effort (Android low / iOS medium), third-party-dependency posture (none for the recommended path), and the recommended sequence — is in [`native-recorder.md`](native-recorder.md).
+
+**Why deferred:** the static native path works for current needs; the recorder is an accuracy/realism upgrade, not a blocker. Strong candidate to promote once native map fidelity (real-state journeys, screens behind un-synthesisable flows) becomes the priority — and it dovetails with remote-testing directions.
+
+---
+
 ## Server collaboration features (Phases 2–5)
 
 Originally documented in [`archive/webapp-collaboration.md`](archive/webapp-collaboration.md). Phase 1 (server + positions) is delivered; what's below is what remains.
