@@ -15,6 +15,38 @@ npx quiver /path/to/ios-prototype --platform ios
 5. Runs `xcodebuild test` in the iOS Simulator and collects the PNG files
 6. Generates a static HTML viewer with the graph and screenshots embedded
 
+## Recording a real session (`--record`)
+
+> **Status: experimental — first working version on the `native-recorder` branch.** The iOS sibling of the [Android recorder](android-support.md#recording-a-real-session---record); same host↔device design, same output. Has known rough edges (below and [`plans/native-recorder.md`](plans/native-recorder.md)).
+
+The static path above maps *what the parser can reach with synthesised data*. The recorder instead maps *what you actually do* — you drive the app in the Simulator and Quiver captures each screen you land on. Same output as the web/Android recorders: a flow map viewer plus a replayable `.flow` script.
+
+```bash
+npx quiver --record --platform ios --name my-journey /path/to/ios-prototype
+```
+
+How it works:
+
+1. It injects a **`UIViewController.viewDidAppear` swizzle** into the prototype's `@main` App file: a `QuiverRecorder` enum + a `UIViewController` extension appended to that file, plus a one-line `QuiverRecorder.install()` trigger inside the `App` struct. On each screen appearance the hook logs `QUIVER_NAV|<screen>|` to the unified log under subsystem `quiver.recorder`. Idempotent, restored afterwards — the code is appended to an **existing** file (never a new one) so it compiles without touching Xcode target membership, the same way the static injector works.
+2. **Screen identity** is the SwiftUI view type. A pushed `NavigationStack` destination is hosted in a `UIHostingController` whose root view *is* that destination view, so the hook reads the hosting controller's `rootView` type (via `Mirror`) and reduces it to a leaf name (`ModifiedContent<HomeView, …>` → `HomeView`). This works whether or not the prototype uses the typed `NavigationStack(path:)` pattern the static fast-path needs. Container controllers (`UINavigationController`, `UITabBarController`, …) are skipped.
+3. It builds the app (`xcodebuild build`, no test target), installs it on a booted Simulator, starts streaming `simctl spawn <udid> log stream` (begun **before** launch — the unified log has no backlog), then launches it.
+4. On each appearance event it waits for the screen to settle, captures via `simctl io <udid> screenshot`, and records a `Visit` step plus an edge from the previously-observed screen — in the order you actually navigated.
+5. **Single-phase:** every appearance from launch is captured; each unique screen once. Press **Enter** to finish — the graph, viewer, and `.flow` are built and the injected hook is removed (restore runs even on Ctrl-C). The app is **left installed**. Press **SPACE** to capture the current screen as a fallback (in-app `WKWebView` pages, UIKit alerts).
+
+### Options & device selection
+
+- `--module <substring>` — for repos with **more than one** Xcode project/workspace, selects which one to build/record (matched against the project filename). Without it, the first found is used.
+- `--name <slug>` / `--title <title>` — names the map and the `.flow` file (same as the static path).
+- **Which Simulator:** the recorder uses the first booted iPhone Simulator, or boots the newest available one.
+
+### Known rough edges & open bugs
+
+- **Screen-name fidelity.** Identity is the SwiftUI view type, so well-named screens (`HomeView`) map cleanly, but views wrapped heavily or named generically can produce rough labels. A future `.quiverScreen("Name")` opt-in modifier would give clean names where wanted.
+- **Reflection dependency.** Reading a `UIHostingController`'s `rootView` via `Mirror` is best-effort and can change across iOS versions; it falls back to the controller class name.
+- **Full-screen screenshots** include the status bar (no cropping yet), like the Android recorder.
+- **In-app web views** aren't auto-captured yet (the Android `WebViewClient` hook has no direct UIKit/`WKWebView` analogue here) — use **Space**. External handoffs are still handled by [`--web-jumpoffs`](#web-jump-offs).
+- **Verification status.** Static checks pass (injection against real prototype source, host parse/graph logic), but the on-Simulator runtime path (swizzle, log streaming) has not been re-run yet — you run the recorder.
+
 ## Navigation patterns detected
 
 - `NavigationLink`, `NavigationStack` — push navigation

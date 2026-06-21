@@ -235,11 +235,42 @@ program
         );
         process.exit(1);
       }
+      // ── iOS recorder ──────────────────────────────────────────────
       if (recordPlatform === "ios") {
-        console.error(
-          `\n❌ Error: the iOS recorder is not implemented yet (see docs/plans/native-recorder.md). Android and web are supported.\n`,
-        );
-        process.exit(1);
+        if (options.name && !/^[a-z0-9][a-z0-9-]*$/.test(options.name)) {
+          console.error(
+            `\n❌ Error: --name must be lowercase alphanumeric with hyphens (e.g. "nhsapp-nav")\n`,
+          );
+          process.exit(1);
+        }
+        const mapName = options.name || toSlug(prototypeDirName);
+        const mapTitle = options.title || prototypeDirName;
+
+        console.log(`\n📐 Quiver — Recorder (iOS)\n`);
+        console.log(`   Prototype: ${resolvedPath}`);
+        console.log(`   Output:    ${path.resolve(options.output)}`);
+        console.log(`   Map:       ${mapName}\n`);
+
+        const { startIosRecording } = require("../src/ios-recorder");
+        try {
+          const result = await startIosRecording({
+            prototypePath: resolvedPath,
+            outputDir: path.resolve(options.output),
+            name: mapName,
+            title: mapTitle,
+            module: options.module,
+            open: options.open,
+          });
+          if (result.viewerPath && options.open) {
+            console.log(`   Opening ${result.viewerPath} in your browser...\n`);
+            openInBrowser(result.viewerPath);
+          }
+        } catch (err) {
+          console.error(`\n❌ Error: ${err.message}\n`);
+          if (process.env.DEBUG) console.error(err.stack);
+          process.exit(1);
+        }
+        return;
       }
 
       // ── Android recorder ──────────────────────────────────────────

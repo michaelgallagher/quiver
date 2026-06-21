@@ -302,4 +302,16 @@ function extractBundleId(appPath) {
   }
 }
 
-module.exports = { crawlAndScreenshotIosFast, detectNavigationStackPattern };
+module.exports = {
+  crawlAndScreenshotIosFast,
+  detectNavigationStackPattern,
+  // Shared host-side helpers reused by the iOS recorder (src/ios-recorder.js).
+  findXcodeProject,
+  getScheme,
+  findOrBootSimulator,
+  findBuiltApp,
+  extractBundleId,
+  findDeveloperDir,
+  sanitize,
+  run,
+};
