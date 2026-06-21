@@ -6,18 +6,36 @@
 
 **Step 1 (Android in-app recorder) — landed, experimental.** It runs end to end: build → inject nav hook → install → launch → observe → capture → graph + viewer + `.flow`. Proven against `native-nhsapp-android-prototype` (the `DemoNHSApp2` module).
 
-What's implemented:
+What's implemented (`src/android-recorder.js`, `src/kotlin-crawler.js`, `bin/cli.js`):
 
-- `src/android-recorder.js` — host-side recorder. Single-phase (every navigation from launch is captured; press Enter to finish). Injects a `DisposableEffect` + `NavController.OnDestinationChangedListener` that logs `QUIVER_NAV|<route>|<args>` to logcat (tag `QUIVER`); host streams `adb logcat -s QUIVER:I`, captures via `adb exec-out screencap -p`, dedups by canonical route, builds the graph via the shared `assignSubgraphLayout`, then the standard viewer/Mermaid/meta/index. Writes a `.flow` to `scenarios/` (dynamic routes → `Snapshot`). Restores the injected file + uninstalls in a `finally` (survives Ctrl-C).
-- `src/kotlin-crawler.js` — exported the device/build helpers (`findAppModule`, `findDevice`, `adb`, `findNavHostFile`, …) for reuse, and added a `moduleHint` arg to `findAppModule` so multi-app repos can target a specific module.
-- `bin/cli.js` — `--record` detects/accepts `--platform android` and routes to the Android recorder; new `--module <substring>` flag; iOS `--record` returns a clear "not implemented yet".
+- **Host-side recorder.** Single-phase — every navigation from launch is captured; press Enter to finish. Injects a `DisposableEffect` + `NavController.OnDestinationChangedListener` that logs `QUIVER_NAV|<route>|<args>` to logcat (tag `QUIVER`); host streams `adb logcat -s QUIVER:I`, captures via `adb exec-out screencap -p`, dedups by canonical route, builds the graph via the shared `assignSubgraphLayout`, then the standard viewer/Mermaid/meta/index. Writes a `.flow` to `scenarios/` (dynamic routes → `Snapshot`). Injected file restored in a `finally` (survives Ctrl-C).
+- **Helpers exported** from `src/kotlin-crawler.js` (`findAppModule`, `findDevice`, `adb`, `adbShell`, `findNavHostFile`, …) for reuse; `findAppModule` gained a `moduleHint` arg so multi-app repos can target a module.
+- **CLI:** `--record` detects/accepts `--platform android`; new `--module <substring>` flag (multi-app repos); iOS `--record` returns a clear "not implemented yet".
 
-**Known issues / next (to fix):**
+**Fixed after first real runs (2026-06-21):**
 
-- Screenshots are full-device (`screencap` includes status/nav bars) vs the static path's Compose-only `captureToImage()` — no cropping yet.
+- Recorder used to **uninstall** the prototype on finish → it now leaves the user's app installed (their device, their app). The `finally` no longer calls `adb uninstall`.
+- **Play Protect "send this app for a security check"** prompt on each adb install → recorder temporarily sets `verifier_verify_adb_installs 0` and restores it on exit (save/restore like animations).
+- Install now uses `-g` (grant runtime permissions) — this did **not** fix the first-screen prompt (see below) but is correct hygiene against permission dialogs.
+- Added a **Space** key for on-demand manual capture (web-recorder-style `Snapshot`). ⚠️ Current implementation hangs every `snapshot-N` node off the *pre-web-view screen*, so a multi-screen web-view journey fans out from one node instead of chaining — **this is wrong and is superseded by the WebView-hook plan below.**
+
+### Agreed plan — next, not yet built (2026-06-21)
+
+Two fixes were specced with the user after the first runs:
+
+1. **Bug — "Android app compatibility" warning captured on the first screen.** On a Samsung device (One UI), launching the debug build shows a one-time compatibility/"app is being tested" warning that has no reliable cross-device adb suppression. **Fix: a one-keypress "ready?" gate.** After `am start`, the recorder waits and prompts the user to dismiss any OS dialog and reach their starting screen, then press Enter; it then captures the *current* screen as the start node and begins auto-capturing navigations. This is **not** a return to the web recorder's Setup/Map split — just a "begin" gate. Device-agnostic; sidesteps identifying the dialog. (Pre-gate nav events are buffered so the start node still gets its real route label.)
+
+2. **Bug — web-view screens must map like native screens (linear chain), not fan out.** **Fix: inject a WebView page-load hook.** Extend the injector so the app's `WebView` (this prototype's shared `NHSWebView` already wires `onPageFinished`) emits a `QUIVER_NAV`-style event with the loaded URL on each page load. The host auto-captures each web-view page exactly as it does a navigation. **Requirement (the whole point): a linear N-screen web-view journey maps as a vertical chain `launch → page1 → page2 → … → pageN`** — each page edges to the next in real visit order, with the real URL as node identity. No manual key, no fan-out. The existing **Space** key stays only as a fallback for screens the hook can't reach.
+   - **Chrome Custom Tabs are out of scope.** They open a separate browser app the hook can't instrument; there won't be many, and capturing just the first screen of such a journey via Space is acceptable. Don't build auto-capture for them.
+
+**Known bugs / still open:**
+
+- **Manual-Space graph bug** (above) — fan-out instead of linear chain. Fixed by the WebView-hook plan; if Space is kept as a fallback, also chain consecutive snapshots (`lastRoute = snapshot id`) rather than hanging them all off the launch node.
+- **First-screen compatibility warning** — until the "ready?" gate lands, the first captured screen may show the Samsung warning.
+- Full-device screenshots (`screencap` includes status/nav bars) vs the static path's Compose-only `captureToImage()` — no cropping yet.
 - Fixed settle delay before capture; fast navigations / long transitions can capture mid-animation.
-- `--module` is recorder-only; the static path still picks the first module. Consider promoting `--module` to the whole native pipeline.
-- *(Other issues surfaced in real runs to be triaged here.)*
+- `--module` is recorder-only; the static path still picks the first module. Consider promoting `--module` pipeline-wide.
+- **All on-device fixes are unverified** — they pass syntax/load checks but haven't been re-run on the device (the user runs the recorder; see [`../android-support.md`](../android-support.md#recording-a-real-session---record)).
 
 **Not started:** Step 2 (iOS recorder), Step 3 (no-injection fallback).
 

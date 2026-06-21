@@ -32,9 +32,17 @@ npx quiver --record --platform android --module demonhsapp2 --name my-journey /p
 How it differs from the static path:
 
 1. Instead of `TestHooks.kt` + `QuiverCapture.kt`, it injects a single `DisposableEffect` into the NavHost file that registers a `NavController.OnDestinationChangedListener`. On each navigation the listener logs `QUIVER_NAV|<route>|<args>` to logcat (tag `QUIVER`). Idempotent, restored afterwards — same contract as the static injection.
-2. It builds **only** `:app:assembleDebug` (no androidTest APK — the app runs for real, not under instrumentation), installs, and launches it.
+2. It builds **only** `:app:assembleDebug` (no androidTest APK — the app runs for real, not under instrumentation), installs it (with `-g` for runtime permissions), and launches it. It temporarily disables Play Protect's adb-install verification (`verifier_verify_adb_installs`) so the "send this app for a security check" prompt doesn't fire, restoring it on exit.
 3. The host streams `adb logcat -s QUIVER:I`. On each nav event it waits for the screen to settle, then captures the device screen via `adb exec-out screencap -p` and records a `Visit` step plus a route→route edge in the order you actually navigated.
-4. **Single-phase:** every navigation from launch is captured (no Setup/Map split). Each unique screen is captured once. Press **Enter** in the terminal to finish — the graph, viewer, and `.flow` script are then built, and the injected hook is removed (restore + uninstall run even on Ctrl-C).
+4. **Single-phase:** every navigation from launch is captured (no Setup/Map split). Each unique screen is captured once. Press **Enter** in the terminal to finish — the graph, viewer, and `.flow` script are then built, and the injected hook is removed (restore runs even on Ctrl-C). **The app is left installed on the device** (the recorder never uninstalls — it's your prototype).
+
+### Web views, overlays & dialogs
+
+The NavController hook fires only on **navigations**. Screens shown another way — a state-driven web-view overlay (e.g. the NHS app's `NHSWebViewState.show(...)`), a Chrome **Custom Tab**, or a dialog — are *not* navigation events.
+
+- **In-app web views (planned, in progress):** an injected WebView page-load hook will auto-capture each web-view page so a multi-screen web-view journey maps as a **vertical chain** (`launch → page1 → page2 → …`), exactly like native screens. **Not yet built** — see [`plans/native-recorder.md`](plans/native-recorder.md).
+- **Today (stopgap):** press **Space** to capture whatever is on screen. ⚠️ Known bug: each `snapshot-N` node is hung off the screen the web view *opened from*, so a multi-screen journey fans out from one node instead of chaining. Being replaced by the hook above.
+- **Chrome Custom Tabs** (external browser) are out of scope for auto-capture — use **Space** to grab the first screen if you want it.
 
 ### Options & device selection
 
@@ -42,11 +50,14 @@ How it differs from the static path:
 - `--name <slug>` / `--title <title>` — same as the static path; names the map and the `.flow` file.
 - **Which device:** the recorder targets the first device in `adb devices`. With both an emulator and a phone attached, set `ANDROID_SERIAL` to choose (e.g. `ANDROID_SERIAL=emulator-5554 npx quiver --record …`).
 
-### Known rough edges
+### Known rough edges & open bugs
 
+- **First-screen "Android app compatibility" warning.** On Samsung/One UI devices, launching the debug build shows a one-time compatibility warning that has no reliable adb suppression, so it can land in the first screenshot. **Planned fix:** a one-keypress "ready?" gate after launch (dismiss the dialog, reach your start screen, press Enter to begin capturing). Not yet built.
+- **Web-view fan-out bug.** Manual **Space** snapshots all link back to the screen the web view opened from instead of chaining. Being replaced by the injected WebView page-load hook (see above).
 - **Full-device screenshots.** `screencap` grabs the whole screen including the status/navigation bars, where the static path's `captureToImage()` captures the Compose tree only. Cropping is not yet applied.
 - **Settle timing.** A fixed delay is used before each capture; very fast navigations or long transition animations may capture mid-transition.
 - **Dynamic routes in the `.flow`.** Parameterised routes (e.g. `message_detail/{id}`) are written as `Snapshot` steps for replay robustness, mirroring the web recorder.
+- **Verification status.** The post-first-run fixes (no-uninstall, Play Protect verifier, manual capture) pass syntax/load checks but have not all been re-run on-device yet.
 
 ## Navigation patterns detected
 
