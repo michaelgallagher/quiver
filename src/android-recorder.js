@@ -79,7 +79,9 @@ async function startAndroidRecording({
   const visitOrder = []; // canonical routes in capture order
   const mapSteps = []; // .flow steps
   let firstRoute = null;
-  let lastRoute = null;
+  let lastRoute = null; // last captured node (native or web) — chains the graph
+  let lastNativeRoute = null; // last NavController screen — the anchor a web view opens from
+  let currentWebSession = null; // identity of the active WebView instance (null = none)
   let stepNumber = 0;
 
   // Serialises async captures so two fast navigations don't race on screencap.
@@ -166,11 +168,16 @@ async function startAndroidRecording({
       const canon = canonicalizeRoute(rawRoute) || rawRoute;
       if (firstRoute === null) firstRoute = canon;
 
-      // Edge from the previously-observed screen (real navigation order).
-      if (lastRoute && lastRoute !== canon) {
-        addEdge(edges, edgeKeys, lastRoute, canon);
+      // A navigation ends any web-view session and re-anchors to the native
+      // layer. Edge from the previous *native* screen — not a web page left
+      // over from a web view that was dismissed (closing one fires no
+      // navigation, so lastRoute can still point at its last page).
+      if (lastNativeRoute && lastNativeRoute !== canon) {
+        addEdge(edges, edgeKeys, lastNativeRoute, canon);
       }
       lastRoute = canon;
+      lastNativeRoute = canon;
+      currentWebSession = null;
 
       // Capture each unique screen once (matches the web recorder's rule).
       if (nodes.has(canon)) return;
@@ -205,8 +212,17 @@ async function startAndroidRecording({
     // page chains off the previously-observed screen (native or web) in real
     // visit order, so an N-screen web journey maps as a vertical chain rather
     // than fanning out from the screen the web view opened from.
-    async function onWeb(rawUrl) {
+    async function onWeb(rawUrl, webViewId) {
       const id = normalizeWebUrl(rawUrl);
+
+      // A new WebView instance = a new web-view session. Its first page attaches
+      // to the native screen it opened from, not the last page of a previous web
+      // view opened from that same screen (dismissing a web view fires no
+      // navigation, so lastRoute can still point at the earlier session's page).
+      if (webViewId !== currentWebSession) {
+        currentWebSession = webViewId;
+        if (lastNativeRoute) lastRoute = lastNativeRoute;
+      }
 
       // Edge from the previously-observed screen, then become the current one
       // so the next page chains onto this one (launch → page1 → page2 → …).
@@ -280,8 +296,10 @@ async function startAndroidRecording({
     function queueNav(rawRoute) {
       captureChain = captureChain.then(() => onNav(rawRoute)).catch(() => {});
     }
-    function queueWeb(rawUrl) {
-      captureChain = captureChain.then(() => onWeb(rawUrl)).catch(() => {});
+    function queueWeb(rawUrl, webViewId) {
+      captureChain = captureChain
+        .then(() => onWeb(rawUrl, webViewId))
+        .catch(() => {});
     }
     function queueManualCapture() {
       captureChain = captureChain.then(() => manualCapture()).catch(() => {});
@@ -301,8 +319,8 @@ async function startAndroidRecording({
           queueNav(nav.route);
           continue;
         }
-        const webUrl = parseWebLine(line);
-        if (webUrl) queueWeb(webUrl);
+        const web = parseWebLine(line);
+        if (web) queueWeb(web.url, web.webViewId);
       }
     });
 
@@ -515,13 +533,15 @@ function injectNavRecorderHook(source) {
 }
 
 /**
- * Insert `android.util.Log.i("QUIVER", "QUIVER_WEB|" + <url> + "|")` at the top
- * of every `override fun onPageFinished(...)` body. Returns the modified source,
- * or null if no override was found / no usable URL param.
+ * Insert `android.util.Log.i("QUIVER", "QUIVER_WEB|" + <url> + "|" +
+ * System.identityHashCode(<webView>))` at the top of every
+ * `override fun onPageFinished(...)` body. Returns the modified source, or null
+ * if no override was found / no usable URL param.
  *
- * The URL parameter name varies (`loadedUrl`, `url`, …); we pick the String-typed
- * param (the WebView param is the other one). Symbols are fully qualified so no
- * import bookkeeping is needed.
+ * The URL parameter name varies (`loadedUrl`, `url`, …) — we pick the
+ * String-typed param; the WebView-typed param supplies the instance id (which
+ * lets the host distinguish one web-view session from the next). Symbols are
+ * fully qualified so no import bookkeeping is needed.
  */
 function injectWebViewLog(source) {
   const re =
@@ -530,10 +550,12 @@ function injectWebViewLog(source) {
   const out = source.replace(re, (full, indent, _sig, params) => {
     const urlParam = pickUrlParam(params);
     if (!urlParam) return full;
+    const viewParam = pickWebViewParam(params);
+    const session = viewParam ? `System.identityHashCode(${viewParam})` : "0";
     injected = true;
     return (
       `${full}\n${indent}    android.util.Log.i(` +
-      `"${LOG_TAG}", "${WEB_MARKER}|" + ${urlParam} + "|")`
+      `"${LOG_TAG}", "${WEB_MARKER}|" + ${urlParam} + "|" + ${session})`
     );
   });
   return injected ? out : null;
@@ -541,14 +563,27 @@ function injectWebViewLog(source) {
 
 /** Pick the URL argument name from an onPageFinished param list (the String one). */
 function pickUrlParam(params) {
-  const parts = params
-    .split(",")
-    .map((p) => p.trim())
-    .filter(Boolean);
+  const parts = splitParams(params);
   if (parts.length === 0) return null;
   const chosen = parts.find((p) => /:\s*String\??/.test(p)) || parts[1] || parts[0];
   const name = chosen.split(":")[0].trim();
   return name || null;
+}
+
+/** Pick the WebView argument name from an onPageFinished param list. */
+function pickWebViewParam(params) {
+  const parts = splitParams(params);
+  if (parts.length === 0) return null;
+  const chosen = parts.find((p) => /:\s*[\w.]*WebView\??/.test(p)) || parts[0];
+  const name = chosen.split(":")[0].trim();
+  return name || null;
+}
+
+function splitParams(params) {
+  return params
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
 }
 
 /** Recursively collect every `.kt` file under `dir`. */
@@ -595,15 +630,20 @@ function parseNavLine(line) {
   return { route, args };
 }
 
-/** Parse a logcat line into a URL if it carries a web page-load marker. */
+/**
+ * Parse a web page-load marker line into { url, webViewId }. The id is the
+ * emitting WebView's identity hash, used to tell a new web-view session from the
+ * next page of the same one. Returns null if the line carries no usable URL.
+ */
 function parseWebLine(line) {
   const idx = line.indexOf(`${WEB_MARKER}|`);
   if (idx === -1) return null;
   const rest = line.slice(idx + WEB_MARKER.length + 1);
-  const sep = rest.indexOf("|");
-  const url = (sep === -1 ? rest : rest.slice(0, sep)).trim();
+  const parts = rest.split("|");
+  const url = (parts[0] || "").trim();
+  const webViewId = (parts[1] || "").trim();
   if (!url || url === "null") return null;
-  return url;
+  return { url, webViewId };
 }
 
 /**
