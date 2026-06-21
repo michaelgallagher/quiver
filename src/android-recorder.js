@@ -10,6 +10,7 @@ const {
   getGradlewName,
   findApk,
   adb,
+  adbShell,
   envWithJavaHome,
   findNavHostFile,
   detectIndent,
@@ -82,6 +83,9 @@ async function startAndroidRecording({
   // Inject the nav-event hook + disable animations; both restored in finally.
   const injections = injectRecorderHook(appModule, metadata);
   const animOriginals = disableAnimations(device);
+  // Suppress Play Protect's "send this app for a security check" prompt that
+  // fires on adb installs of unrecognised apps; restored in finally.
+  const verifierOriginal = disableInstallVerification(device);
 
   let logcat = null;
 
@@ -108,7 +112,10 @@ async function startAndroidRecording({
     // 2. Install + launch.
     const appApk = findApk(appModule, "debug", { test: false });
     console.log(`   App APK: ${path.relative(prototypePath, appApk)}`);
-    adb(device, "install", "-r", "-t", appApk);
+    // -g grants all runtime permissions at install time, so the OS permission
+    // dialog (e.g. POST_NOTIFICATIONS on Android 13+) never pops over the first
+    // captured screen.
+    adb(device, "install", "-r", "-t", "-g", appApk);
 
     adb(device, "logcat", "-c"); // clear backlog so we only see this session
     adb(
@@ -120,7 +127,36 @@ async function startAndroidRecording({
       `${metadata.applicationId}/${metadata.mainActivityClass}`,
     );
 
-    // ─── Capture handler ────────────────────────────────────────────
+    // ─── Capture helpers ────────────────────────────────────────────
+
+    // Screencap the device and write it under <id>.png. Returns the node's
+    // screenshot fields, or null on failure.
+    function grabScreen(id) {
+      let png;
+      try {
+        png = captureScreen(device);
+      } catch (err) {
+        console.warn(`   ⚠️  screencap failed for ${id}: ${err.message}`);
+        return null;
+      }
+      fs.mkdirSync(screenshotsDir, { recursive: true });
+      const filename = `${sanitizeFilename(id)}.png`;
+      fs.writeFileSync(path.join(screenshotsDir, filename), png);
+      const dims = pngDimensions(png);
+      return {
+        screenshot: `screenshots/${filename}`,
+        ...(dims ? { screenshotAspectRatio: dims.height / dims.width } : {}),
+      };
+    }
+
+    function recordNode(node, note = "") {
+      nodes.set(node.id, node);
+      visitOrder.push(node.id);
+      stepNumber++;
+      console.log(`   📸 ${String(stepNumber).padStart(2)}. ${node.id}${note}`);
+    }
+
+    // Automatic capture, triggered by a NavController destination change.
     async function onNav(rawRoute) {
       const canon = canonicalizeRoute(rawRoute) || rawRoute;
       if (firstRoute === null) firstRoute = canon;
@@ -139,46 +175,65 @@ async function startAndroidRecording({
       // keep a concrete Visit.
       const isDynamic = canon !== rawRoute;
       mapSteps.push(
-        isDynamic
-          ? { type: "snapshot" }
-          : { type: "visit", url: rawRoute },
+        isDynamic ? { type: "snapshot" } : { type: "visit", url: rawRoute },
       );
 
       // Settle, then grab the device screen.
       await sleep(SETTLE_MS);
-      let png;
-      try {
-        png = captureScreen(device);
-      } catch (err) {
-        console.warn(`   ⚠️  screencap failed for ${canon}: ${err.message}`);
-        return;
-      }
-
-      fs.mkdirSync(screenshotsDir, { recursive: true });
-      const filename = `${sanitizeFilename(canon)}.png`;
-      fs.writeFileSync(path.join(screenshotsDir, filename), png);
-
-      const dims = pngDimensions(png);
-      nodes.set(canon, {
+      const shot = grabScreen(canon);
+      if (!shot) return;
+      recordNode({
         id: canon,
         label: routeToLabel(canon),
         urlPath: canon,
         rawRoute,
         hub: null,
         filePath: null,
-        screenshot: `screenshots/${filename}`,
         type: "screen",
         navArgs: [],
-        ...(dims ? { screenshotAspectRatio: dims.height / dims.width } : {}),
+        ...shot,
       });
-      visitOrder.push(canon);
+    }
 
-      stepNumber++;
-      console.log(`   📸 ${String(stepNumber).padStart(2)}. ${canon}`);
+    // Manual capture (Space): grabs whatever is on screen right now — for
+    // screens the NavController never sees (NHSWebView-style overlays, Chrome
+    // Custom Tabs, dialogs). Mirrors the web recorder's "Capture page".
+    let snapshotCount = 0;
+    async function manualCapture() {
+      snapshotCount++;
+      const id = `snapshot-${snapshotCount}`;
+      const shot = grabScreen(id);
+      if (!shot) {
+        snapshotCount--;
+        return;
+      }
+      recordNode(
+        {
+          id,
+          label: `Snapshot ${snapshotCount}`,
+          urlPath: id,
+          rawRoute: id,
+          hub: null,
+          filePath: null,
+          type: "screen",
+          navArgs: [],
+          ...shot,
+        },
+        " (manual)",
+      );
+      // Hang it off the screen we were last on (a side-trip) without making it
+      // the new "current" route — the overlay dismisses back to that screen.
+      if (lastRoute && lastRoute !== id) {
+        addEdge(edges, edgeKeys, lastRoute, id);
+      }
+      mapSteps.push({ type: "snapshot" });
     }
 
     function queueNav(rawRoute) {
       captureChain = captureChain.then(() => onNav(rawRoute)).catch(() => {});
+    }
+    function queueManualCapture() {
+      captureChain = captureChain.then(() => manualCapture()).catch(() => {});
     }
 
     // 3. Stream logcat, parse nav markers.
@@ -195,9 +250,15 @@ async function startAndroidRecording({
       }
     });
 
-    // 4. Record until the user presses Enter.
-    console.log(`\n   Recording. Press Enter to finish.\n`);
-    await waitForEnter();
+    // 4. Record until the user presses Enter. Space captures the current
+    //    screen on demand (web views / overlays the NavController can't see).
+    console.log(
+      `\n   Recording.\n` +
+        `     • navigate the app — each new screen is captured automatically\n` +
+        `     • press SPACE to capture the current screen (web views, dialogs)\n` +
+        `     • press ENTER to finish\n`,
+    );
+    await awaitFinish(queueManualCapture);
 
     // 5. Flush any in-flight captures before tearing down the device side.
     console.log(`\n   Finishing captures...`);
@@ -205,11 +266,11 @@ async function startAndroidRecording({
   } finally {
     if (logcat) logcat.kill();
     restoreAnimations(device, animOriginals);
-    try {
-      adb(device, "uninstall", metadata.applicationId);
-    } catch {
-      // best-effort — leaving the app installed is harmless
-    }
+    restoreInstallVerification(device, verifierOriginal);
+    // NB: we deliberately do NOT uninstall — this is the user's own prototype
+    // on their own device, and they expect it to stay installed after
+    // recording. (The installed build still carries the benign logcat hook;
+    // the source file is restored below so the next normal build is clean.)
     restoreInjections(injections);
   }
 
@@ -397,6 +458,38 @@ function parseNavLine(line) {
   return { route, args };
 }
 
+const VERIFIER_KEY = "verifier_verify_adb_installs";
+
+/**
+ * Turn off verification of adb installs so Play Protect doesn't prompt
+ * "send this app for a security check" on each install. Returns the prior
+ * value (or null if unreadable) for restoreInstallVerification.
+ */
+function disableInstallVerification(device) {
+  let original = null;
+  try {
+    original = adbShell(device, `settings get global ${VERIFIER_KEY}`).trim();
+    adbShell(device, `settings put global ${VERIFIER_KEY} 0`);
+    console.log(
+      `   Disabled adb-install verification for this session (restored on exit)`,
+    );
+  } catch {
+    // Not all devices expose this setting — best effort.
+  }
+  return original;
+}
+
+function restoreInstallVerification(device, original) {
+  if (original === null) return;
+  try {
+    // An unset/"null" prior value means the secure default (on) — restore to 1.
+    const value = original === "null" || original === "" ? "1" : original;
+    adbShell(device, `settings put global ${VERIFIER_KEY} ${value}`);
+  } catch {
+    // best-effort
+  }
+}
+
 /** Grab the full device screen as a PNG buffer via exec-out (no CRLF mangling). */
 function captureScreen(device) {
   const res = spawnSync("adb", ["-s", device, "exec-out", "screencap", "-p"], {
@@ -479,16 +572,38 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function waitForEnter() {
+/**
+ * Resolve when the user presses Enter (or Ctrl-C). While waiting, Space invokes
+ * onSpace() for an on-demand capture. Uses raw keypress mode in a TTY; falls
+ * back to line-based Enter-to-finish when stdin isn't a TTY (no manual capture).
+ */
+function awaitFinish(onSpace) {
+  const stdin = process.stdin;
+  if (!stdin.isTTY) {
+    return new Promise((resolve) => {
+      const rl = readline.createInterface({ input: stdin });
+      rl.question("", () => {
+        rl.close();
+        resolve();
+      });
+    });
+  }
   return new Promise((resolve) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-    rl.question("", () => {
-      rl.close();
-      resolve();
-    });
+    readline.emitKeypressEvents(stdin);
+    stdin.setRawMode(true);
+    stdin.resume();
+    function onKey(str, key) {
+      if (!key) return;
+      if (key.name === "return" || (key.ctrl && key.name === "c")) {
+        stdin.removeListener("keypress", onKey);
+        stdin.setRawMode(false);
+        stdin.pause();
+        resolve();
+      } else if (key.name === "space") {
+        onSpace();
+      }
+    }
+    stdin.on("keypress", onKey);
   });
 }
 
