@@ -148,6 +148,28 @@ The recommended path (backend 1) needs **none** — it reuses Quiver's own injec
 2. **iOS in-app recorder** — ✅ **landed (experimental)**, see the iOS-recorder note under [Current status](#current-status-native-recorder-branch). Reuses `simctl` host helpers from `swift-spike-runner`; a `viewDidAppear` swizzle emits screen appearances to the unified log. Identity is the SwiftUI view type (hybrid: universal appearance hook + clean view-type names). Static-verified; on-Simulator runtime unverified. Optional `.quiverScreen` modifier remains a follow-up for label fidelity.
 3. **(Later) a no-injection fallback** — Android `AccessibilityService` or a driver/CV backend, for prototypes that can't be injected, behind the same `SessionEvent → .flow` adapter.
 
+## Backlog goals (filed 2026-06-21 — resume next)
+
+Two goals filed to resume after the iOS recorder is verified on-Simulator:
+
+### Goal 1 — Native maps should look like a traditional Dagre tree, not one centred clump
+
+**Problem.** Native app maps currently render as a single large **centred clump** — nodes pile up in the middle instead of spreading out.
+
+**Desired.** A more traditional top-down Dagre appearance: nodes spread **horizontally** so each node has room for its own children to cluster **directly beneath it** (a readable hierarchy/tree), rather than everything converging on the centre.
+
+**Where to look.** `src/layout-ranks.js` (`assignSubgraphLayout`, which the recorder and static native path both call) and the viewer's Dagre config in `src/build-viewer.js`. Investigate whether the clump comes from rank assignment, node/rank separation (`nodesep`/`ranksep`), or the subgraph-layout step centring siblings. Compare against how the **web** maps render — is the clump native-specific (e.g. driven by the recorder's mostly-linear edge sets) or a shared layout issue? Recorder graphs tend to be linear chains + a few branches, so confirm the layout spreads branches horizontally and stacks each branch's descendants vertically.
+
+### Goal 2 — Run the native recorder on a laptop simulator/emulator (no plugged-in device)
+
+**Question.** Can the recorder run entirely against an on-laptop Simulator/emulator, with no physical device attached?
+
+**Current state (starting point for the investigation).**
+- **iOS already does this** — the iOS recorder runs entirely on a booted **Simulator** via `simctl` (`findOrBootSimulator`); it never needs a physical device.
+- **Android uses `adb`**, which targets **emulators** as well as phones (an `emulator-5554` AVD has been attached; `ANDROID_SERIAL=emulator-5554` selects it). So emulator recording *should* already work, but it hasn't been run end-to-end — so far Android has only been driven on a physical Samsung phone.
+
+**Goal.** Verify the full Android flow on an emulator and document the "no physical device needed" path; surface any device-only assumptions to fix (e.g. the Play Protect `verifier_verify_adb_installs` toggle on an emulator, full-screen screenshot dimensions, and whether the fixed settle delay is long enough on a slower emulator). This also feeds the remote-testing / participant's-own-device direction noted under "Trade-offs & open questions".
+
 ## Files to change (when promoted)
 
 - `src/kotlin-parser.js` / the Android injection step in `src/index.js` (`generateNative`) — add the `OnDestinationChangedListener` emit alongside the existing `TestHooks` injection; ensure restore.
