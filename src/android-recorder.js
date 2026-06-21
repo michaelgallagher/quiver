@@ -28,8 +28,13 @@ const { buildIndex } = require("./build-index");
 // The logcat tag the injected hook emits under. Filtering on it keeps the
 // host-side stream clean (`adb logcat -s QUIVER:I`).
 const LOG_TAG = "QUIVER";
-// Marker prefix on each emitted line: "QUIVER_NAV|<route>|<args>".
+// Marker prefix on each emitted nav line: "QUIVER_NAV|<route>|<args>".
 const NAV_MARKER = "QUIVER_NAV";
+// Marker prefix emitted by the injected WebView page-load hook:
+// "QUIVER_WEB|<url>|". A web page is its own node (real URL = identity) and
+// chains off the previously-observed screen, so a linear web-view journey maps
+// as launch → page1 → page2 → … instead of fanning out (the old Space bug).
+const WEB_MARKER = "QUIVER_WEB";
 // How long to let a screen settle (transition + first frame) before grabbing
 // the screencap. Tunable; kept conservative for animated transitions.
 const SETTLE_MS = 700;
@@ -195,9 +200,50 @@ async function startAndroidRecording({
       });
     }
 
-    // Manual capture (Space): grabs whatever is on screen right now — for
-    // screens the NavController never sees (NHSWebView-style overlays, Chrome
-    // Custom Tabs, dialogs). Mirrors the web recorder's "Capture page".
+    // Automatic capture of an in-app web-view page, triggered by the injected
+    // WebView page-load hook (QUIVER_WEB). Identity is the real URL, and each
+    // page chains off the previously-observed screen (native or web) in real
+    // visit order, so an N-screen web journey maps as a vertical chain rather
+    // than fanning out from the screen the web view opened from.
+    async function onWeb(rawUrl) {
+      const id = normalizeWebUrl(rawUrl);
+
+      // Edge from the previously-observed screen, then become the current one
+      // so the next page chains onto this one (launch → page1 → page2 → …).
+      if (lastRoute && lastRoute !== id) {
+        addEdge(edges, edgeKeys, lastRoute, id);
+      }
+      lastRoute = id;
+
+      // Capture each unique page once (matches the web recorder's rule).
+      if (nodes.has(id)) return;
+
+      // Web pages aren't native routes — replay them as Snapshot steps.
+      mapSteps.push({ type: "snapshot" });
+
+      await sleep(SETTLE_MS);
+      const shot = grabScreen(id);
+      if (!shot) return;
+      recordNode(
+        {
+          id,
+          label: webUrlToLabel(rawUrl),
+          urlPath: id,
+          rawRoute: rawUrl,
+          hub: null,
+          filePath: null,
+          type: "screen",
+          navArgs: [],
+          ...shot,
+        },
+        " (web)",
+      );
+    }
+
+    // Manual capture (Space): grabs whatever is on screen right now — a
+    // fallback for screens neither hook sees (Chrome Custom Tabs, dialogs, or
+    // a web view the page-load hook couldn't be injected into). Mirrors the web
+    // recorder's "Capture page".
     let snapshotCount = 0;
     async function manualCapture() {
       snapshotCount++;
@@ -221,16 +267,21 @@ async function startAndroidRecording({
         },
         " (manual)",
       );
-      // Hang it off the screen we were last on (a side-trip) without making it
-      // the new "current" route — the overlay dismisses back to that screen.
+      // Chain off the previously-observed screen, then become the current one
+      // so consecutive Space snapshots form a chain (snapshot-1 → snapshot-2 →
+      // …) instead of all hanging off the screen the journey started from.
       if (lastRoute && lastRoute !== id) {
         addEdge(edges, edgeKeys, lastRoute, id);
       }
+      lastRoute = id;
       mapSteps.push({ type: "snapshot" });
     }
 
     function queueNav(rawRoute) {
       captureChain = captureChain.then(() => onNav(rawRoute)).catch(() => {});
+    }
+    function queueWeb(rawUrl) {
+      captureChain = captureChain.then(() => onWeb(rawUrl)).catch(() => {});
     }
     function queueManualCapture() {
       captureChain = captureChain.then(() => manualCapture()).catch(() => {});
@@ -245,8 +296,13 @@ async function startAndroidRecording({
       while ((idx = buf.indexOf("\n")) >= 0) {
         const line = buf.slice(0, idx);
         buf = buf.slice(idx + 1);
-        const parsed = parseNavLine(line);
-        if (parsed) queueNav(parsed.route);
+        const nav = parseNavLine(line);
+        if (nav) {
+          queueNav(nav.route);
+          continue;
+        }
+        const webUrl = parseWebLine(line);
+        if (webUrl) queueWeb(webUrl);
       }
     });
 
@@ -254,8 +310,8 @@ async function startAndroidRecording({
     //    screen on demand (web views / overlays the NavController can't see).
     console.log(
       `\n   Recording.\n` +
-        `     • navigate the app — each new screen is captured automatically\n` +
-        `     • press SPACE to capture the current screen (web views, dialogs)\n` +
+        `     • navigate the app — each new screen (and in-app web page) is captured automatically\n` +
+        `     • press SPACE to capture the current screen (fallback: Custom Tabs, dialogs)\n` +
         `     • press ENTER to finish\n`,
     );
     await awaitFinish(queueManualCapture);
@@ -380,7 +436,37 @@ function injectRecorderHook(appModule, metadata) {
     `   Injected recorder hook into ${path.relative(appModule.dir, navHostFile)}`,
   );
 
+  // Also instrument any WebView so in-app web pages are auto-captured (optional
+  // — apps without a WebView simply get nothing here).
+  injectWebViewHooks(appModule, injections);
+
   return injections;
+}
+
+/**
+ * Inject a logcat emit into every `WebViewClient.onPageFinished` override in the
+ * app's main source tree, so each in-app web page load fires a QUIVER_WEB event
+ * the host captures. Mutations are recorded in `injections` for restore and are
+ * idempotent (a prior injection is left in place).
+ */
+function injectWebViewHooks(appModule, injections) {
+  const mainSrc = path.join(appModule.dir, "src/main");
+  if (!fs.existsSync(mainSrc)) return;
+
+  for (const file of walkKtFiles(mainSrc)) {
+    const original = fs.readFileSync(file, "utf-8");
+    if (!original.includes("override fun onPageFinished")) continue;
+    if (original.includes(`"${WEB_MARKER}|"`)) continue; // already injected
+
+    const modified = injectWebViewLog(original);
+    if (!modified || modified === original) continue;
+
+    fs.writeFileSync(file, modified, "utf-8");
+    injections.push({ type: "modify", path: file, original });
+    console.log(
+      `   Injected WebView page-load hook into ${path.relative(appModule.dir, file)}`,
+    );
+  }
 }
 
 /**
@@ -428,6 +514,57 @@ function injectNavRecorderHook(source) {
   return out;
 }
 
+/**
+ * Insert `android.util.Log.i("QUIVER", "QUIVER_WEB|" + <url> + "|")` at the top
+ * of every `override fun onPageFinished(...)` body. Returns the modified source,
+ * or null if no override was found / no usable URL param.
+ *
+ * The URL parameter name varies (`loadedUrl`, `url`, …); we pick the String-typed
+ * param (the WebView param is the other one). Symbols are fully qualified so no
+ * import bookkeeping is needed.
+ */
+function injectWebViewLog(source) {
+  const re =
+    /(^[ \t]*)(override\s+fun\s+onPageFinished\s*\(([^)]*)\)\s*(?::\s*[^{]+)?\{)/gm;
+  let injected = false;
+  const out = source.replace(re, (full, indent, _sig, params) => {
+    const urlParam = pickUrlParam(params);
+    if (!urlParam) return full;
+    injected = true;
+    return (
+      `${full}\n${indent}    android.util.Log.i(` +
+      `"${LOG_TAG}", "${WEB_MARKER}|" + ${urlParam} + "|")`
+    );
+  });
+  return injected ? out : null;
+}
+
+/** Pick the URL argument name from an onPageFinished param list (the String one). */
+function pickUrlParam(params) {
+  const parts = params
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
+  if (parts.length === 0) return null;
+  const chosen = parts.find((p) => /:\s*String\??/.test(p)) || parts[1] || parts[0];
+  const name = chosen.split(":")[0].trim();
+  return name || null;
+}
+
+/** Recursively collect every `.kt` file under `dir`. */
+function walkKtFiles(dir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...walkKtFiles(full));
+    } else if (entry.isFile() && entry.name.endsWith(".kt")) {
+      out.push(full);
+    }
+  }
+  return out;
+}
+
 function restoreInjections(injections) {
   for (const injection of injections.reverse()) {
     try {
@@ -456,6 +593,46 @@ function parseNavLine(line) {
   const args = sep === -1 ? "" : rest.slice(sep + 1).trim();
   if (!route || route === "null") return null;
   return { route, args };
+}
+
+/** Parse a logcat line into a URL if it carries a web page-load marker. */
+function parseWebLine(line) {
+  const idx = line.indexOf(`${WEB_MARKER}|`);
+  if (idx === -1) return null;
+  const rest = line.slice(idx + WEB_MARKER.length + 1);
+  const sep = rest.indexOf("|");
+  const url = (sep === -1 ? rest : rest.slice(0, sep)).trim();
+  if (!url || url === "null") return null;
+  return url;
+}
+
+/**
+ * Node identity for a web page: the URL minus fragment and trailing slash. The
+ * query string is kept (it can distinguish steps in a web flow). Dedups revisits
+ * to the same page, mirroring the web recorder.
+ */
+function normalizeWebUrl(url) {
+  const noFragment = url.split("#")[0].replace(/\/+$/, "");
+  return noFragment || url;
+}
+
+/** "https://111.nhs.uk/triage/start" → "111.nhs.uk › Start"; falls back to the URL. */
+function webUrlToLabel(url) {
+  try {
+    const u = new URL(url);
+    const segs = u.pathname.split("/").filter(Boolean);
+    const last = segs[segs.length - 1];
+    if (!last) return u.host;
+    const pretty = last
+      .replace(/\.[a-z0-9]+$/i, "")
+      .replace(/[_-]/g, " ")
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .trim();
+    return pretty ? `${u.host} › ${pretty}` : u.host;
+  } catch {
+    return url;
+  }
 }
 
 const VERIFIER_KEY = "verifier_verify_adb_installs";
@@ -607,4 +784,12 @@ function awaitFinish(onSpace) {
   });
 }
 
-module.exports = { startAndroidRecording, injectNavRecorderHook, parseNavLine };
+module.exports = {
+  startAndroidRecording,
+  injectNavRecorderHook,
+  injectWebViewLog,
+  parseNavLine,
+  parseWebLine,
+  normalizeWebUrl,
+  webUrlToLabel,
+};

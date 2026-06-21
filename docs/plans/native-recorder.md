@@ -17,20 +17,18 @@ What's implemented (`src/android-recorder.js`, `src/kotlin-crawler.js`, `bin/cli
 - Recorder used to **uninstall** the prototype on finish → it now leaves the user's app installed (their device, their app). The `finally` no longer calls `adb uninstall`.
 - **Play Protect "send this app for a security check"** prompt on each adb install → recorder temporarily sets `verifier_verify_adb_installs 0` and restores it on exit (save/restore like animations).
 - Install now uses `-g` (grant runtime permissions) — this did **not** fix the first-screen prompt (see below) but is correct hygiene against permission dialogs.
-- Added a **Space** key for on-demand manual capture (web-recorder-style `Snapshot`). ⚠️ Current implementation hangs every `snapshot-N` node off the *pre-web-view screen*, so a multi-screen web-view journey fans out from one node instead of chaining — **this is wrong and is superseded by the WebView-hook plan below.**
+- Added a **Space** key for on-demand manual capture (web-recorder-style `Snapshot`).
 
-### Agreed plan — next, not yet built (2026-06-21)
+**WebView page-load hook — landed (2026-06-21).** Bug 2 below is fixed. The injector now also instruments every `WebViewClient.onPageFinished` in the app's source to emit `QUIVER_WEB|<url>` per page load; the host captures each in-app web page as its own node with the **real URL as identity**, chaining off the previously-observed screen so an N-screen web journey maps as a vertical chain `launch → page1 → page2 → …`. Revisits dedup by URL (fragment + trailing slash dropped, query kept). The **Space** fallback now also chains consecutive snapshots instead of fanning out. Chrome Custom Tabs remain out of scope (Space-only). Implemented in `src/android-recorder.js` (`injectWebViewHooks`/`injectWebViewLog`, `onWeb`/`parseWebLine`/`normalizeWebUrl`/`webUrlToLabel`). **Unverified on-device** — the user re-runs.
 
-Two fixes were specced with the user after the first runs:
+### Agreed plan — still to build (2026-06-21)
 
 1. **Bug — "Android app compatibility" warning captured on the first screen.** On a Samsung device (One UI), launching the debug build shows a one-time compatibility/"app is being tested" warning that has no reliable cross-device adb suppression. **Fix: a one-keypress "ready?" gate.** After `am start`, the recorder waits and prompts the user to dismiss any OS dialog and reach their starting screen, then press Enter; it then captures the *current* screen as the start node and begins auto-capturing navigations. This is **not** a return to the web recorder's Setup/Map split — just a "begin" gate. Device-agnostic; sidesteps identifying the dialog. (Pre-gate nav events are buffered so the start node still gets its real route label.)
 
-2. **Bug — web-view screens must map like native screens (linear chain), not fan out.** **Fix: inject a WebView page-load hook.** Extend the injector so the app's `WebView` (this prototype's shared `NHSWebView` already wires `onPageFinished`) emits a `QUIVER_NAV`-style event with the loaded URL on each page load. The host auto-captures each web-view page exactly as it does a navigation. **Requirement (the whole point): a linear N-screen web-view journey maps as a vertical chain `launch → page1 → page2 → … → pageN`** — each page edges to the next in real visit order, with the real URL as node identity. No manual key, no fan-out. The existing **Space** key stays only as a fallback for screens the hook can't reach.
-   - **Chrome Custom Tabs are out of scope.** They open a separate browser app the hook can't instrument; there won't be many, and capturing just the first screen of such a journey via Space is acceptable. Don't build auto-capture for them.
+2. ~~**Bug — web-view screens must map like native screens (linear chain), not fan out.**~~ **Done** — see "WebView page-load hook — landed" above. Kept for context: the fix injects a page-load hook so a linear N-screen web-view journey maps as a vertical chain with the real URL as node identity; **Chrome Custom Tabs stay out of scope** (Space-only).
 
 **Known bugs / still open:**
 
-- **Manual-Space graph bug** (above) — fan-out instead of linear chain. Fixed by the WebView-hook plan; if Space is kept as a fallback, also chain consecutive snapshots (`lastRoute = snapshot id`) rather than hanging them all off the launch node.
 - **First-screen compatibility warning** — until the "ready?" gate lands, the first captured screen may show the Samsung warning.
 - Full-device screenshots (`screencap` includes status/nav bars) vs the static path's Compose-only `captureToImage()` — no cropping yet.
 - Fixed settle delay before capture; fast navigations / long transitions can capture mid-animation.
