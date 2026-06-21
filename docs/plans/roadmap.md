@@ -42,6 +42,8 @@ Bring the web recorder's "watch a real session" approach to the native (iOS/Andr
 
 **Sequence:** Android first (lowest effort — the NavHost injection and `adb` capture already exist), then iOS (medium — label fidelity is the wrinkle; optional `.quiverScreen("Name")` modifier for clean names). A no-injection fallback (Android `AccessibilityService`, or driver/CV) is later, behind the same `SessionEvent → .flow` adapter. No third-party software on the recommended path. See [`native-recorder.md`](native-recorder.md) for "Files to change" and per-platform implementation detail.
 
+**Progress:** the **Android recorder has landed (experimental)** on the `native-recorder` branch — `src/android-recorder.js`, `--record --platform android`, `--module` for multi-app repos — and runs end to end. Known rough edges (full-device screenshots, settle timing) and the iOS recorder are still open. Full status + known issues in [`native-recorder.md`](native-recorder.md#current-status-native-recorder-branch).
+
 Next candidates (in rough priority order) — see [`future-ideas.md`](future-ideas.md) and [`layout-overlap-fixes.md`](layout-overlap-fixes.md) for detail:
 
 1. **Server collaboration features (Phases 2–5)** — comments/annotations, lightweight identity + SQLite, real-time sync, and web-triggered generation, building on the delivered Phase 1 (server + positions). Detail in [`future-ideas.md`](future-ideas.md#server-collaboration-features-phases-25).

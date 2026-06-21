@@ -157,6 +157,10 @@ program
     'Project platform: "web" (default), "ios", or "android". Auto-detected if omitted.',
     "",
   )
+  .option(
+    "--module <name>",
+    "For multi-app Android repos: substring selecting which application module to use (e.g. demonhsapp2)",
+  )
   .option("--no-open", "Do not open the browser after generation")
   .option(
     "--serve",
@@ -218,6 +222,65 @@ program
         process.exit(1);
       }
 
+      // Determine platform for recording (explicit flag > auto-detect).
+      let recordPlatform = (options.platform || "").toLowerCase();
+      if (!recordPlatform) {
+        if (isIosProject(resolvedPath)) recordPlatform = "ios";
+        else if (isAndroidProject(resolvedPath)) recordPlatform = "android";
+        else recordPlatform = "web";
+      }
+      if (!["web", "ios", "android"].includes(recordPlatform)) {
+        console.error(
+          `\n❌ Error: --platform must be "web", "ios", or "android"\n`,
+        );
+        process.exit(1);
+      }
+      if (recordPlatform === "ios") {
+        console.error(
+          `\n❌ Error: the iOS recorder is not implemented yet (see docs/plans/native-recorder.md). Android and web are supported.\n`,
+        );
+        process.exit(1);
+      }
+
+      // ── Android recorder ──────────────────────────────────────────
+      if (recordPlatform === "android") {
+        if (options.name && !/^[a-z0-9][a-z0-9-]*$/.test(options.name)) {
+          console.error(
+            `\n❌ Error: --name must be lowercase alphanumeric with hyphens (e.g. "nhsapp-nav")\n`,
+          );
+          process.exit(1);
+        }
+        const mapName = options.name || toSlug(prototypeDirName);
+        const mapTitle = options.title || prototypeDirName;
+
+        console.log(`\n📐 Quiver — Recorder (Android)\n`);
+        console.log(`   Prototype: ${resolvedPath}`);
+        console.log(`   Output:    ${path.resolve(options.output)}`);
+        console.log(`   Map:       ${mapName}\n`);
+
+        const { startAndroidRecording } = require("../src/android-recorder");
+        try {
+          const result = await startAndroidRecording({
+            prototypePath: resolvedPath,
+            outputDir: path.resolve(options.output),
+            name: mapName,
+            title: mapTitle,
+            module: options.module,
+            open: options.open,
+          });
+          if (result.viewerPath && options.open) {
+            console.log(`   Opening ${result.viewerPath} in your browser...\n`);
+            openInBrowser(result.viewerPath);
+          }
+        } catch (err) {
+          console.error(`\n❌ Error: ${err.message}\n`);
+          if (process.env.DEBUG) console.error(err.stack);
+          process.exit(1);
+        }
+        return;
+      }
+
+      // ── Web recorder ──────────────────────────────────────────────
       const { startRecording } = require("../src/recorder");
       const recordFilename =
         typeof options.record === "string" ? options.record : "recorded.flow";

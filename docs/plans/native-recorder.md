@@ -2,6 +2,25 @@
 
 > **Status: active workstream** (see [`roadmap.md`](roadmap.md)). Brings the web recorder's "watch a real session" approach to the native (iOS/Android) pipeline, so native maps can be built from a real human click-through instead of static parsing + programmatic navigation.
 
+## Current status (`native-recorder` branch)
+
+**Step 1 (Android in-app recorder) — landed, experimental.** It runs end to end: build → inject nav hook → install → launch → observe → capture → graph + viewer + `.flow`. Proven against `native-nhsapp-android-prototype` (the `DemoNHSApp2` module).
+
+What's implemented:
+
+- `src/android-recorder.js` — host-side recorder. Single-phase (every navigation from launch is captured; press Enter to finish). Injects a `DisposableEffect` + `NavController.OnDestinationChangedListener` that logs `QUIVER_NAV|<route>|<args>` to logcat (tag `QUIVER`); host streams `adb logcat -s QUIVER:I`, captures via `adb exec-out screencap -p`, dedups by canonical route, builds the graph via the shared `assignSubgraphLayout`, then the standard viewer/Mermaid/meta/index. Writes a `.flow` to `scenarios/` (dynamic routes → `Snapshot`). Restores the injected file + uninstalls in a `finally` (survives Ctrl-C).
+- `src/kotlin-crawler.js` — exported the device/build helpers (`findAppModule`, `findDevice`, `adb`, `findNavHostFile`, …) for reuse, and added a `moduleHint` arg to `findAppModule` so multi-app repos can target a specific module.
+- `bin/cli.js` — `--record` detects/accepts `--platform android` and routes to the Android recorder; new `--module <substring>` flag; iOS `--record` returns a clear "not implemented yet".
+
+**Known issues / next (to fix):**
+
+- Screenshots are full-device (`screencap` includes status/nav bars) vs the static path's Compose-only `captureToImage()` — no cropping yet.
+- Fixed settle delay before capture; fast navigations / long transitions can capture mid-animation.
+- `--module` is recorder-only; the static path still picks the first module. Consider promoting `--module` to the whole native pipeline.
+- *(Other issues surfaced in real runs to be triaged here.)*
+
+**Not started:** Step 2 (iOS recorder), Step 3 (no-injection fallback).
+
 ## Why
 
 Quiver has two ways to build a map today, and the native path only has the harder one:
@@ -103,8 +122,8 @@ The recommended path (backend 1) needs **none** — it reuses Quiver's own injec
 
 ## Recommended sequence
 
-1. **Android in-app recorder** — highest leverage, reuses the existing NavHost injection and `adb` capture. Proves the host↔device event-stream + `.flow` writer design end-to-end.
-2. **iOS in-app recorder** — same design via `swift-injector` + `simctl`, accepting the label-fidelity wrinkle (+ optional `.quiverScreen` modifier).
+1. **Android in-app recorder** — ✅ **landed (experimental)**, see [Current status](#current-status-native-recorder-branch). Reuses the existing NavHost injection and `adb` capture; proved the host↔device event-stream + `.flow` writer design end-to-end.
+2. **iOS in-app recorder** — *next.* Same design via `swift-injector` + `simctl`, accepting the label-fidelity wrinkle (+ optional `.quiverScreen` modifier).
 3. **(Later) a no-injection fallback** — Android `AccessibilityService` or a driver/CV backend, for prototypes that can't be injected, behind the same `SessionEvent → .flow` adapter.
 
 ## Files to change (when promoted)

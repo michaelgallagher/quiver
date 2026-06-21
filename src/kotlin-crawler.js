@@ -170,8 +170,13 @@ async function crawlAndScreenshotAndroid(graph, options) {
 /**
  * Find the Android application module (contains the android.application plugin).
  * Returns { dir, projectRoot }.
+ *
+ * @param {string} prototypePath
+ * @param {string} [moduleHint] - case-insensitive substring; when a project has
+ *   several application modules, selects the one whose gradle-file path matches
+ *   (e.g. "demonhsapp2"). Errors with the available list if it matches none.
  */
-function findAppModule(prototypePath) {
+function findAppModule(prototypePath, moduleHint) {
   // Find all build.gradle / build.gradle.kts files
   const gradleFiles = globSync("**/build.gradle*", {
     cwd: prototypePath,
@@ -181,7 +186,7 @@ function findAppModule(prototypePath) {
 
   // Match the android.application plugin being APPLIED (not declared with `apply false`).
   // Root project gradle files typically use `alias(...) apply false`, which should be skipped.
-  const candidates = gradleFiles.filter((f) => {
+  let candidates = gradleFiles.filter((f) => {
     try {
       const content = fs.readFileSync(f, "utf-8");
       const lines = content.split("\n");
@@ -201,9 +206,28 @@ function findAppModule(prototypePath) {
     );
   }
 
+  // Narrow to a specific module when a hint is given (handles multi-app repos).
+  if (moduleHint) {
+    const hint = moduleHint.toLowerCase();
+    const matched = candidates.filter((f) =>
+      f.toLowerCase().includes(hint),
+    );
+    if (matched.length === 0) {
+      const available = candidates
+        .map((f) => path.relative(prototypePath, path.dirname(f)))
+        .join(", ");
+      throw new Error(
+        `No application module matched --module "${moduleHint}". Available: ${available}`,
+      );
+    }
+    candidates = matched;
+  }
+
   if (candidates.length > 1) {
+    const chosen = path.relative(prototypePath, path.dirname(candidates[0]));
     console.warn(
-      `   ⚠️  Multiple Android application modules found; using the first: ${candidates[0]}`,
+      `   ⚠️  Multiple Android application modules found; using ${chosen}. ` +
+        `Pass --module <name> to pick another.`,
     );
   }
 
@@ -666,4 +690,19 @@ function detectIndent(source, anchorIdx) {
   return source.slice(i, j);
 }
 
-module.exports = { crawlAndScreenshotAndroid };
+module.exports = {
+  crawlAndScreenshotAndroid,
+  // Device/build helpers reused by the native recorder (src/android-recorder.js).
+  findAppModule,
+  extractProjectMetadata,
+  findDevice,
+  getGradlewName,
+  findApk,
+  adb,
+  adbShell,
+  envWithJavaHome,
+  findNavHostFile,
+  detectIndent,
+  disableAnimations,
+  restoreAnimations,
+};

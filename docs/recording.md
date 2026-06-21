@@ -114,6 +114,16 @@ For best replay results, review the generated `.flow` file and:
 - Add `Wait` steps if your prototype has timed transitions
 - Extract common setup steps into fragments (see [writing scenarios](scenarios.md#fragments))
 
+## Native recording (Android)
+
+The recorder also works on native Android prototypes (Jetpack Compose + Navigation Compose). Instead of a browser, it builds and launches the app on a connected device/emulator and watches its navigation events:
+
+```bash
+npx quiver --record --platform android --module <module> --name my-journey /path/to/android-prototype
+```
+
+You drive the app on the device; each screen you navigate to is captured via `adb screencap`, and pressing **Enter** in the terminal finishes the session and builds the map + `.flow` script. It is **single-phase** — every navigation from launch is captured (there is no Setup/Map toolbar, since a native app has no injected page chrome). See [Android support → Recording a real session](android-support.md#recording-a-real-session---record) for the full reference, the `--module` flag (multi-app repos), device selection (`ANDROID_SERIAL`), and current known rough edges. iOS recording is not implemented yet (see [`plans/native-recorder.md`](plans/native-recorder.md)).
+
 ## Recorder vs hand-written scenarios
 
 | | Recorder | Hand-written `.flow` |

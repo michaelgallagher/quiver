@@ -19,6 +19,35 @@ npx quiver /path/to/android-prototype --platform android
 
 See [how-it-works.md](how-it-works.md) for the full pipeline.
 
+## Recording a real session (`--record`)
+
+> **Status: experimental — first working version on the `native-recorder` branch.** Builds an end-to-end map, with known rough edges (see below and [`plans/native-recorder.md`](plans/native-recorder.md)).
+
+The static path above maps *what the parser can reach with fabricated seed data*. The recorder instead maps *what you actually do* — you drive the app on a connected device/emulator and Quiver captures each screen you land on. Same output as the web recorder ([`recording.md`](recording.md)): a flow map viewer plus a replayable `.flow` script.
+
+```bash
+npx quiver --record --platform android --module demonhsapp2 --name my-journey /path/to/android-prototype
+```
+
+How it differs from the static path:
+
+1. Instead of `TestHooks.kt` + `QuiverCapture.kt`, it injects a single `DisposableEffect` into the NavHost file that registers a `NavController.OnDestinationChangedListener`. On each navigation the listener logs `QUIVER_NAV|<route>|<args>` to logcat (tag `QUIVER`). Idempotent, restored afterwards — same contract as the static injection.
+2. It builds **only** `:app:assembleDebug` (no androidTest APK — the app runs for real, not under instrumentation), installs, and launches it.
+3. The host streams `adb logcat -s QUIVER:I`. On each nav event it waits for the screen to settle, then captures the device screen via `adb exec-out screencap -p` and records a `Visit` step plus a route→route edge in the order you actually navigated.
+4. **Single-phase:** every navigation from launch is captured (no Setup/Map split). Each unique screen is captured once. Press **Enter** in the terminal to finish — the graph, viewer, and `.flow` script are then built, and the injected hook is removed (restore + uninstall run even on Ctrl-C).
+
+### Options & device selection
+
+- `--module <substring>` — for repos with **more than one** application module, selects which one to build/record (matched case-insensitively against the module path, e.g. `demonhsapp2`). Without it, the first module found is used and a warning tells you how to override.
+- `--name <slug>` / `--title <title>` — same as the static path; names the map and the `.flow` file.
+- **Which device:** the recorder targets the first device in `adb devices`. With both an emulator and a phone attached, set `ANDROID_SERIAL` to choose (e.g. `ANDROID_SERIAL=emulator-5554 npx quiver --record …`).
+
+### Known rough edges
+
+- **Full-device screenshots.** `screencap` grabs the whole screen including the status/navigation bars, where the static path's `captureToImage()` captures the Compose tree only. Cropping is not yet applied.
+- **Settle timing.** A fixed delay is used before each capture; very fast navigations or long transition animations may capture mid-transition.
+- **Dynamic routes in the `.flow`.** Parameterised routes (e.g. `message_detail/{id}`) are written as `Snapshot` steps for replay robustness, mirroring the web recorder.
+
 ## Navigation patterns detected
 
 - `NavHost { composable("route") { ... } }` — registered screens become nodes
