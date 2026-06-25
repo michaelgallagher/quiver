@@ -83,12 +83,12 @@ async function generate(options) {
 
   timer.start("Parse");
   // Step 1: Scan for all template files
-  console.log("1️⃣  Scanning templates...");
+  console.log("1. Scanning templates...");
   const templateFiles = scanTemplates(prototypePath);
   console.log(`   Found ${templateFiles.length} templates`);
 
   // Step 2: Parse each template for links, forms, conditionals
-  console.log("2️⃣  Parsing templates for routes and conditions...");
+  console.log("2. Parsing templates for routes and conditions...");
   const templateData = [];
   for (const file of templateFiles) {
     const parsed = parseTemplate(file, prototypePath);
@@ -97,12 +97,12 @@ async function generate(options) {
   console.log(`   Parsed ${templateData.length} page templates`);
 
   // Step 3: Parse explicit route handlers
-  console.log("3️⃣  Parsing Express route handlers...");
+  console.log("3. Parsing Express route handlers...");
   const explicitRoutes = parseRoutes(prototypePath);
   console.log(`   Found ${explicitRoutes.length} explicit route handlers`);
 
   // Step 4: Build the graph from static analysis
-  console.log("4️⃣  Building flow graph...");
+  console.log("4. Building flow graph...");
   let graph = buildGraph(templateData, explicitRoutes, basePath, exclude, []);
   if (exclude) {
     graph = filterByExclusion(graph, exclude);
@@ -138,7 +138,7 @@ async function generate(options) {
   // Step 5: Crawl and screenshot (if enabled)
   if (screenshots) {
     timer.start("Screenshots");
-    console.log("5️⃣  Crawling prototype and capturing screenshots...");
+    console.log("5. Crawling prototype and capturing screenshots...");
     graph = await crawlAndScreenshot(graph, {
       prototypePath,
       port,
@@ -216,12 +216,12 @@ async function generate(options) {
       );
     }
   } else {
-    console.log("5️⃣  Skipping screenshots (--no-screenshots)");
+    console.log("5. Skipping screenshots (--no-screenshots)");
   }
 
   // Step 6: Build the viewer
   timer.start("Viewer");
-  console.log("6️⃣  Building interactive viewer...");
+  console.log("6. Building interactive viewer...");
   await buildViewer(graph, mapOutputDir, screenshots, viewport, {
     name,
     title: title || path.basename(prototypePath),
@@ -263,7 +263,7 @@ async function generate(options) {
       JSON.stringify(meta, null, 2),
     );
 
-    console.log("7️⃣  Building collection index...");
+    console.log("7. Building collection index...");
     buildIndex(outputDir);
     console.log("   Collection index built");
   }
@@ -306,21 +306,21 @@ async function generateNative(options) {
   timer.start("Parse");
   if (platform === "android") {
     // Step 1: Scan for Kotlin source files
-    console.log("1️⃣  Scanning Kotlin files...");
+    console.log("1. Scanning Kotlin files...");
     const kotlinFiles = scanKotlinFiles(prototypePath);
     console.log(`   Found ${kotlinFiles.length} Kotlin files`);
 
     // Step 2: Parse all files for Compose navigation patterns
-    console.log("2️⃣  Parsing composables for navigation...");
+    console.log("2. Parsing composables for navigation...");
     const parsedScreens = parseKotlinProject(kotlinFiles, prototypePath);
     console.log(`   Parsed ${parsedScreens.length} Compose screens`);
 
     // Step 3: Build the graph
-    console.log("3️⃣  Building flow graph...");
+    console.log("3. Building flow graph...");
     graph = buildKotlinGraph(parsedScreens);
   } else {
     // Step 1: Scan for Swift source files
-    console.log("1️⃣  Scanning Swift files...");
+    console.log("1. Scanning Swift files...");
     const swiftFiles = scanSwiftFiles(prototypePath);
     console.log(`   Found ${swiftFiles.length} Swift files`);
 
@@ -328,12 +328,12 @@ async function generateNative(options) {
     // harvests project-wide WebFlowConfig URL bindings (enum-based static
     // web flows declared in their own file from the call sites), pass 2
     // parses each file with bindings available for indirection lookup.
-    console.log("2️⃣  Parsing views for navigation...");
+    console.log("2. Parsing views for navigation...");
     parsedViews = parseSwiftProject(swiftFiles, prototypePath);
     console.log(`   Parsed ${parsedViews.length} SwiftUI views`);
 
     // Step 3: Build the graph
-    console.log("3️⃣  Building flow graph...");
+    console.log("3. Building flow graph...");
     graph = buildSwiftGraph(parsedViews);
   }
 
@@ -353,11 +353,11 @@ async function generateNative(options) {
     const seeds = collectSeedUrls(graph, config.webJumpoffs.allowlist);
     if (seeds.length === 0) {
       console.log(
-        "3️⃣ b Web jump-offs enabled but no allowlisted URLs found in graph — skipping",
+        "3b. Web jump-offs enabled but no allowlisted URLs found in graph — skipping",
       );
     } else {
       console.log(
-        `3️⃣  Crawling ${seeds.length} web jump-off(s) (maxPages=${config.webJumpoffs.maxPages})...`,
+        `3. Crawling ${seeds.length} web jump-off(s) (maxPages=${config.webJumpoffs.maxPages})...`,
       );
       const webResult = await crawlWebJumpoffs(seeds, {
         outputDir: mapOutputDir,
@@ -405,7 +405,7 @@ async function generateNative(options) {
     const useFastRunner = detectNavigationStackPattern(prototypePath);
     if (useFastRunner) {
       console.log(
-        "4️⃣  Capturing screenshots via simctl launch-args (fast path)...",
+        "4. Capturing screenshots via simctl launch-args (fast path)...",
       );
       graph = await crawlAndScreenshotIosFast(graph, parsedViews, {
         prototypePath,
@@ -414,7 +414,7 @@ async function generateNative(options) {
       });
     } else {
       console.log(
-        "4️⃣  Capturing screenshots via XCUITest (NavigationStack(path:) not detected)...",
+        "4. Capturing screenshots via XCUITest (NavigationStack(path:) not detected)...",
       );
       graph = await crawlAndScreenshotIos(graph, {
         prototypePath,
@@ -427,7 +427,7 @@ async function generateNative(options) {
     );
   } else if (screenshots && platform === "android") {
     timer.start("Screenshots");
-    console.log("4️⃣  Capturing screenshots via Android Compose test...");
+    console.log("4. Capturing screenshots via Android Compose test...");
     graph = await crawlAndScreenshotAndroid(graph, {
       prototypePath,
       outputDir: mapOutputDir,
@@ -437,12 +437,12 @@ async function generateNative(options) {
       `   Captured ${graph.nodes.filter((n) => n.screenshot).length} screenshots`,
     );
   } else {
-    console.log("4️⃣  Skipping screenshots (--no-screenshots)");
+    console.log("4. Skipping screenshots (--no-screenshots)");
   }
 
   // Step 5: Build the viewer
   timer.start("Viewer");
-  console.log("5️⃣  Building interactive viewer...");
+  console.log("5. Building interactive viewer...");
   await buildViewer(graph, mapOutputDir, screenshots, null, {
     name,
     title: title || path.basename(prototypePath),
@@ -472,7 +472,7 @@ async function generateNative(options) {
       JSON.stringify(meta, null, 2),
     );
 
-    console.log("7️⃣  Building collection index...");
+    console.log("7. Building collection index...");
     buildIndex(outputDir);
     console.log("   Collection index built");
   }
@@ -542,7 +542,7 @@ async function generateScenario(options) {
 
   // Run static analysis for enrichment
   timer.start("Static analysis");
-  console.log(`\n1️⃣  Running static analysis for enrichment...`);
+  console.log(`\n1. Running static analysis for enrichment...`);
   const templateFiles = scanTemplates(prototypePath);
   const templateData = [];
   for (const file of templateFiles) {
