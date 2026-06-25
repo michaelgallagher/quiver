@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { delegatedHelperBody } = require("./swift-nav-utils");
 
 // Standard SwiftUI container/wrapper views that are not navigation destinations
 const SWIFTUI_CONTAINERS = new Set([
@@ -859,16 +860,37 @@ function extractNavigationDestinations(content, result) {
     const closure = findNextClosure(content, match.index + match[0].length);
     if (!closure) continue;
 
-    // Parse switch case .enumCase: ViewName() pairs
-    const caseRe = /\bcase\s+\.(\w+)\s*:\s*\n?\s*([A-Z][A-Za-z0-9]*(?:View|Page|Screen))\s*\(/g;
-    let caseMatch;
-    while ((caseMatch = caseRe.exec(closure.content)) !== null) {
-      result.navigationDestinations.push({
-        target: caseMatch[2],
-        label: caseMatch[1], // enum case name as label
-      });
+    // Parse switch case .enumCase: ViewName() pairs from the closure itself.
+    const found = collectNavDestCases(closure.content, result);
+
+    // Indirection: the closure may delegate to a helper rather than switching
+    // inline, e.g. `{ d in destinationView(for: d) }` with the switch living in
+    // `func destinationView(for:) -> some View`. Follow it, otherwise the
+    // destinations vanish — their views get no incoming edge and surface as
+    // spurious zero-in-degree "start" columns in the map.
+    if (found === 0) {
+      const helperBody = delegatedHelperBody(closure.content, content);
+      if (helperBody) collectNavDestCases(helperBody, result);
     }
   }
+}
+
+/**
+ * Push `case .enumCase: ViewName()` pairs from a switch body into
+ * result.navigationDestinations. Returns the number of pairs found.
+ */
+function collectNavDestCases(switchBody, result) {
+  const caseRe = /\bcase\s+\.(\w+)\s*:\s*\n?\s*([A-Z][A-Za-z0-9]*(?:View|Page|Screen))\s*\(/g;
+  let caseMatch;
+  let count = 0;
+  while ((caseMatch = caseRe.exec(switchBody)) !== null) {
+    result.navigationDestinations.push({
+      target: caseMatch[2],
+      label: caseMatch[1], // enum case name as label
+    });
+    count++;
+  }
+  return count;
 }
 
 /**

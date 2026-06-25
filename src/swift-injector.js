@@ -19,6 +19,7 @@
 const fs = require("fs");
 const path = require("path");
 const { globSync } = require("glob");
+const { braceMatchedBody, delegatedHelperBody } = require("./swift-nav-utils");
 
 const SENTINEL = "// [quiver-injected]";
 
@@ -328,24 +329,56 @@ function findNavigationHost(prototypePath) {
 function parseCaseMap(hostContent, enumType, prototypePath) {
   const caseMap = new Map();
 
-  // Find the switch block inside navigationDestination(for: EnumType.self)
+  // Strategy 1: an inline switch inside the navigationDestination closure, e.g.
+  //   .navigationDestination(for: Foo.self) { d in switch d { case .a: AView() … } }
   const ndPattern = new RegExp(
     `\\.navigationDestination\\(for:\\s*${enumType}\\.self[^{]*\\{[^{]*switch[^{]*\\{([\\s\\S]*?)\\}\\s*\\}\\s*\\}`,
     "m",
   );
   const ndMatch = hostContent.match(ndPattern);
-  if (!ndMatch) return caseMap;
+  if (ndMatch) collectCaseViews(ndMatch[1], caseMap);
+  if (caseMap.size > 0) return caseMap;
 
-  const switchBody = ndMatch[1];
+  // Strategy 2: the closure delegates to a @ViewBuilder helper rather than
+  // switching inline, e.g.
+  //   .navigationDestination(for: Foo.self) { d in destinationView(for: d) }
+  //   @ViewBuilder func destinationView(for d: Foo) -> some View { switch d { … } }
+  // Follow the indirection and parse the helper's switch. Without this the route
+  // plan is empty and only the root screen gets captured.
+  const helperBody = findDelegatedDestinationBody(hostContent, enumType);
+  if (helperBody) collectCaseViews(helperBody, caseMap);
 
-  // Match: case .<caseName>: <ViewName>(...)  or  case .<caseName>:\n  <ViewName>(...)
+  return caseMap;
+}
+
+/**
+ * Collect `case .x: ViewName(` mappings from a switch body into caseMap
+ * (routeKey → viewName). Handles the case body being on the same or next line.
+ */
+function collectCaseViews(switchBody, caseMap) {
   const casePattern = /case\s+\.([a-z][A-Za-z0-9_]*):\s*\n?\s*([A-Z][A-Za-z0-9_]+)\s*\(/g;
   let m;
   while ((m = casePattern.exec(switchBody)) !== null) {
-    caseMap.set(m[1], m[2]); // routeKey → viewName
+    caseMap.set(m[1], m[2]);
   }
+}
 
-  return caseMap;
+/**
+ * When the navigationDestination closure delegates to a helper function instead
+ * of switching inline, return that helper's body. Finds the first function call
+ * in the closure, then locates `func <name>(…) { … }` in the same file and
+ * returns its brace-matched body. Returns null if no delegation is found.
+ */
+function findDelegatedDestinationBody(hostContent, enumType) {
+  const ndStart = hostContent.search(
+    new RegExp(`\\.navigationDestination\\(for:\\s*${enumType}\\.self`),
+  );
+  if (ndStart === -1) return null;
+
+  // The closure body, e.g. "destination in destinationView(for: destination)".
+  const closure = braceMatchedBody(hostContent, ndStart);
+  if (!closure) return null;
+  return delegatedHelperBody(closure, hostContent);
 }
 
 /**
@@ -748,7 +781,7 @@ function injectSheetTriggers(graph, viewMap, prototypePath, routePlan, backup) {
     if (!taskCode) continue;
 
     // Insert before the first .alert( or .sheet( or end-of-body
-    const injected = insertSheetTriggerTask(content, taskCode);
+    const injected = insertSheetTriggerTask(content, taskCode, parentViewName);
     backup(filePath, content);
     fs.writeFileSync(filePath, injected, "utf-8");
   }
@@ -860,24 +893,58 @@ ${checks}
         }`;
 }
 
-function insertSheetTriggerTask(content, taskCode) {
-  // Insert before the first .alert( modifier, or before .sheet(isPresented:,
-  // or as the last modifier before the closing brace of body.
+function insertSheetTriggerTask(content, taskCode, parentViewName) {
+  // The task references the parent view's @State trigger vars, so it must land
+  // inside that view's `body` — never a sibling struct or a #Preview block. Add
+  // it as the last modifier before body's closing brace, scoped to the parent
+  // struct. (The earlier "last `\n    }` in the file" heuristic could match a
+  // 4-space-indented brace inside #Preview, yielding "cannot find '<var>' in
+  // scope".)
+  const structStart = parentViewName
+    ? content.search(new RegExp(`\\bstruct\\s+${parentViewName}\\b`))
+    : -1;
+  if (structStart !== -1) {
+    const bodyRel = content.slice(structStart).search(/\bvar\s+body\b[^{]*\{/);
+    if (bodyRel !== -1) {
+      const bodyClose = matchingBraceIndex(content, structStart + bodyRel);
+      if (bodyClose !== -1) {
+        return content.slice(0, bodyClose) + taskCode + "\n" + content.slice(bodyClose);
+      }
+    }
+  }
+
+  // Fallbacks (older heuristics): before the first .alert(, then .sheet(.
   const alertIdx = content.search(/\n\s+\.alert\(/);
   if (alertIdx !== -1) {
     return content.slice(0, alertIdx) + "\n" + taskCode + content.slice(alertIdx);
   }
-  // Fallback: insert before the first .sheet(
   const sheetIdx = content.search(/\n\s+\.sheet\(/);
   if (sheetIdx !== -1) {
     return content.slice(0, sheetIdx) + "\n" + taskCode + content.slice(sheetIdx);
   }
-  // Last resort: before final closing brace
   const lastBrace = content.lastIndexOf("\n    }");
   if (lastBrace !== -1) {
     return content.slice(0, lastBrace) + "\n" + taskCode + content.slice(lastBrace);
   }
   return content + "\n" + taskCode;
+}
+
+/**
+ * Index of the `}` that matches the first `{` at/after fromIndex, or -1.
+ */
+function matchingBraceIndex(content, fromIndex) {
+  let pos = fromIndex;
+  while (pos < content.length && content[pos] !== "{") pos++;
+  if (pos >= content.length) return -1;
+  let depth = 0;
+  for (let end = pos; end < content.length; end++) {
+    if (content[end] === "{") depth++;
+    else if (content[end] === "}") {
+      depth--;
+      if (depth === 0) return end;
+    }
+  }
+  return -1;
 }
 
 // ---------------------------------------------------------------------------

@@ -165,6 +165,24 @@ async function crawlAndScreenshotIosFast(graph, parsedViews, options) {
 
     console.log(`   Captured ${captured} of ${totalRoutes} routes`);
 
+    // Mark native screens that ended up without a screenshot so the map can show
+    // them as deliberately "not captured" rather than mysteriously blank. We
+    // distinguish screens the route plan never reached (e.g. steps deep inside a
+    // NavigationLink chain the launch-args path can't drive) from ones it tried
+    // but failed to capture at runtime.
+    const plannedNodeIds = new Set();
+    for (const r of routePlan.allRoutes) plannedNodeIds.add(r.nodeId);
+    for (const r of routePlan.sheetRoutes) plannedNodeIds.add(r.nodeId);
+    let unreached = 0;
+    for (const node of graph.nodes) {
+      if (node.screenshot || node.type !== "screen") continue;
+      node.captureStatus = plannedNodeIds.has(node.id) ? "failed" : "unreachable";
+      unreached++;
+    }
+    if (unreached > 0) {
+      console.log(`   ${unreached} native screen(s) not captured (marked on the map)`);
+    }
+
     // 7. Uninstall
     try {
       run("xcrun", ["simctl", "uninstall", simulator.udid, bundleId]);

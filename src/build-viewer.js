@@ -867,6 +867,22 @@ body {
   opacity: 0.9;
 }
 
+/* Placeholder for native screens the capture pass couldn't reach. */
+.node-uncaptured {
+  fill: var(--bg-subtle, #f3f4f6);
+  stroke: var(--border, #cbd5e1);
+  stroke-width: 1;
+  stroke-dasharray: 4,3;
+  pointer-events: none;
+}
+.node-uncaptured-label {
+  fill: var(--text-muted, #94a3b8);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
 /* Edge styles */
 .edge-path {
   fill: none;
@@ -966,6 +982,24 @@ body {
   border-radius: 6px;
   border: 1px solid var(--border);
   margin-bottom: 12px;
+}
+
+#panel-content .panel-uncaptured {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  background: var(--bg-subtle, #f3f4f6);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-meta-value);
+}
+#panel-content .panel-uncaptured span {
+  font-weight: 400;
+  color: var(--text-muted, #94a3b8);
 }
 
 #panel-content .panel-meta {
@@ -2678,6 +2712,29 @@ function generateViewerJs() {
         group.appendChild(img);
       }
 
+      // Placeholder for native screens we couldn't capture (no screenshot, but
+      // flagged by the iOS capture pass) — makes the blank read as intentional.
+      if (hasScreenshots && !hideScreenshots && !node.screenshot && node.captureStatus) {
+        const phW = node.width - IMG_PAD * 2;
+        const phH = node.height - LABEL_AREA - IMG_PAD;
+        const ph = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        ph.setAttribute('x', IMG_PAD);
+        ph.setAttribute('y', IMG_PAD);
+        ph.setAttribute('width', phW);
+        ph.setAttribute('height', phH);
+        ph.setAttribute('rx', '3');
+        ph.setAttribute('class', 'node-uncaptured');
+        group.appendChild(ph);
+        const phText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        phText.setAttribute('x', node.width / 2);
+        phText.setAttribute('y', IMG_PAD + phH / 2);
+        phText.setAttribute('text-anchor', 'middle');
+        phText.setAttribute('dominant-baseline', 'middle');
+        phText.setAttribute('class', 'node-uncaptured-label');
+        phText.textContent = 'NOT CAPTURED';
+        group.appendChild(phText);
+      }
+
       // Title label
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       label.setAttribute('x', node.width / 2);
@@ -2780,6 +2837,11 @@ function generateViewerJs() {
 
     if (hasScreenshots && !hideScreenshots && node.screenshot) {
       html += '<img class="panel-screenshot" src="' + node.screenshot + '" alt="Screenshot of ' + escapeHtml(node.label) + '" />';
+    } else if (node.captureStatus) {
+      var why = node.captureStatus === 'unreachable'
+        ? 'This screen could not be reached by the launch-args capture pass (e.g. it sits deep inside a NavigationLink chain).'
+        : 'Capture was attempted for this screen but it could not be screenshotted.';
+      html += '<div class="panel-uncaptured">Not captured<span>' + why + '</span></div>';
     }
 
     html += '<dl class="panel-meta">';
