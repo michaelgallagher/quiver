@@ -97,7 +97,7 @@ async function crawlAndScreenshotIosFast(graph, parsedViews, options) {
 
     if (buildResult.status !== 0) {
       const out = [buildResult.stdout, buildResult.stderr].filter(Boolean).join("\n");
-      throw new Error(`xcodebuild build failed:\n${out.slice(-3000)}`);
+      throw new Error(`xcodebuild build failed:\n${formatBuildError(out)}`);
     }
 
     // 4. Find the built .app and extract bundle ID
@@ -184,6 +184,34 @@ async function crawlAndScreenshotIosFast(graph, parsedViews, options) {
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Pull the meaningful diagnostics out of xcodebuild output. A failing build's
+ * last lines are usually a wall of linker `-o`/`-index-unit-output-path` args,
+ * so a plain tail-slice hides the actual `error:`. Collect every `error:` line
+ * (Swift/clang/linker) plus its trailing context (the source line + caret, or
+ * `note:` lines), and fall back to a tail-slice only if none are found.
+ */
+function formatBuildError(out) {
+  const lines = out.split("\n");
+  const kept = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/(^|:\s|\s)error:/.test(line) || /^(ld|clang|Undefined symbols|duplicate symbol)\b/.test(line)) {
+      kept.push(line);
+      // Include up to 3 following context lines (source snippet, caret, notes)
+      // until the next blank line or the next diagnostic.
+      for (let j = i + 1; j < Math.min(i + 4, lines.length); j++) {
+        if (lines[j].trim() === "" || /(^|:\s|\s)(error|warning):/.test(lines[j])) break;
+        kept.push(lines[j]);
+      }
+    }
+  }
+  if (kept.length === 0) return out.slice(-3000);
+  // De-dupe consecutive repeats (xcodebuild prints some diagnostics twice) and cap length.
+  const deduped = kept.filter((l, idx) => l !== kept[idx - 1]);
+  return deduped.join("\n").slice(-4000);
 }
 
 function sanitize(id) {
@@ -312,6 +340,7 @@ module.exports = {
   findBuiltApp,
   extractBundleId,
   findDeveloperDir,
+  formatBuildError,
   sanitize,
   run,
 };

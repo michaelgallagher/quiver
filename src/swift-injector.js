@@ -386,10 +386,49 @@ function injectIntoNavigationHost(content, routePlan, enumType, parsedViews, pro
   result = insertTaskAfterNavigationStack(result, taskCode);
 
   // -- C: quiverSubDestination helper --
+  // Insert into the struct that actually hosts the NavigationStack — not merely
+  // the last struct in the file. Host files commonly define sub-views or
+  // extensions *after* the host struct, and a helper placed there is a method of
+  // the wrong type, unreachable from the navigationDestination closure
+  // ("cannot find 'quiverSubDestination' in scope").
   const helperCode = generateHelperFunction(pushRoutes, parsedViews, prototypePath);
-  result = insertHelperAtStructBottom(result, helperCode);
+  const hostStructName = findEnclosingStructName(result, result.search(/NavigationStack\(path:/));
+  result = hostStructName
+    ? insertHelperIntoNamedStruct(result, hostStructName, helperCode)
+    : insertHelperAtStructBottom(result, helperCode);
 
   return result;
+}
+
+/**
+ * Return the name of the `struct` whose body contains `pos`, or null. Picks the
+ * innermost enclosing struct by brace-matching each declaration's range.
+ */
+function findEnclosingStructName(content, pos) {
+  if (pos < 0) return null;
+  const declRe = /\bstruct\s+([A-Za-z_]\w*)/g;
+  let name = null;
+  let m;
+  while ((m = declRe.exec(content)) !== null) {
+    // Find this declaration's opening brace.
+    let open = m.index + m[0].length;
+    while (open < content.length && content[open] !== "{" && content[open] !== "}") open++;
+    if (content[open] !== "{") continue;
+    if (open >= pos) break; // declaration opens after pos — it can't enclose it
+    // Brace-match to this struct's closing brace.
+    let depth = 0;
+    let end = open;
+    while (end < content.length) {
+      if (content[end] === "{") depth++;
+      else if (content[end] === "}") {
+        depth--;
+        if (depth === 0) break;
+      }
+      end++;
+    }
+    if (open < pos && end > pos) name = m[1]; // encloses pos; keep the innermost
+  }
+  return name;
 }
 
 function insertAfterNavigationDestination(content, enumType, insertion) {
@@ -622,24 +661,41 @@ function injectAppSplashSkip(prototypePath, backup) {
 
     const varName = splashVarMatch[1];
 
-    // Inject an init() that sets the var to false when -quiverRoute is present.
-    // Strategy: find the struct declaration line and insert init() after the
-    // State property declarations block.
-    const initInjection = `
-    ${SENTINEL}
-    init() {
-        // quiver: skip splash/animation when launched with -quiverRoute.
-        if ProcessInfo.processInfo.arguments.contains("-quiverRoute") {
-            self._${varName} = State(initialValue: false)
-        }
-    }
-`;
+    // The skip itself: when launched with -quiverRoute, start past the splash.
+    const skipLine = `if ProcessInfo.processInfo.arguments.contains("-quiverRoute") { self._${varName} = State(initialValue: false) }`;
 
-    // Insert after the last @State property declaration block, before `var body`
+    // Anchor on `var body` — both injection strategies place code before it.
     const bodyIdx = content.search(/\n\s{4}var body\s*:/);
     if (bodyIdx === -1) continue;
 
-    const injected = content.slice(0, bodyIdx) + "\n" + initInjection + content.slice(bodyIdx);
+    // If the App struct already declares its own init(), inject the skip into
+    // it. Adding a second init() would be an `invalid redeclaration of 'init()'`
+    // build error. Match an init() in the struct body before `var body`.
+    const existingInit = /\n(\s*)init\s*\(\s*\)\s*(?:async\s*)?(?:throws\s*)?\{/.exec(
+      content.slice(0, bodyIdx),
+    );
+
+    let injected;
+    if (existingInit) {
+      const afterBrace = existingInit.index + existingInit[0].length;
+      const indent = existingInit[1] + "    ";
+      injected =
+        content.slice(0, afterBrace) +
+        `\n${indent}${SENTINEL}` +
+        `\n${indent}// quiver: skip splash/animation when launched with -quiverRoute.` +
+        `\n${indent}${skipLine}` +
+        content.slice(afterBrace);
+    } else {
+      // No existing init() — add one before `var body`.
+      const initInjection = `
+    ${SENTINEL}
+    init() {
+        // quiver: skip splash/animation when launched with -quiverRoute.
+        ${skipLine}
+    }
+`;
+      injected = content.slice(0, bodyIdx) + "\n" + initInjection + content.slice(bodyIdx);
+    }
     backup(filePath, content);
     fs.writeFileSync(filePath, injected, "utf-8");
     return { filePath, varName };
